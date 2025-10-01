@@ -20,7 +20,7 @@ Sistema web para automatizar o processo de comissões de nomeações da Igreja A
 - **React Router Dom** - Navegação entre páginas
 - **Tailwind CSS** - Framework CSS utility-first
 - **Lucide React** - Ícones modernos
-- **jsPDF** - Geração de PDFs (para próximas features)
+- **jsPDF** - Geração de PDFs (para próximas features)...
 - **React Select** - Componentes de seleção avançados (para próximas features)
 
 ## 📦 Instalação e Execução
