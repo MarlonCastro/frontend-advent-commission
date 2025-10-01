@@ -1,11 +1,31 @@
+import { useNavigate } from 'react-router-dom';
+import { useVotacao } from '../contexts/VotacaoContext';
 import ProgressBar from '../components/ProgressBar';
 import MinisterioSelector from '../components/MinisterioSelector';
 import EtapaIndicador from '../components/EtapaIndicador';
-import ComponenteExplicacao from '../components/ComponenteExplicacao';
-import FormularioIndicacao from '../components/FormularioIndicacao';
-import TelaPrincipalVotacao from '../components/TelaPrincipalVotacao';
+import { useEffect } from 'react';
 
 const Votacao = () => {
+  const { ministerioAtual, etapaAtual } = useVotacao();
+  const navigate = useNavigate();
+
+  // Redirecionar para a rota apropriada baseado na etapa
+  useEffect(() => {
+    if (ministerioAtual && etapaAtual) {
+      switch (etapaAtual) {
+        case 1:
+          navigate('/votacao/explicacao');
+          break;
+        case 2:
+          navigate('/votacao/indicacao');
+          break;
+        case 3:
+          navigate('/votacao/votando');
+          break;
+      }
+    }
+  }, [ministerioAtual, etapaAtual, navigate]);
+
   return (
     <div className="space-y-6">
       <div>
@@ -18,18 +38,6 @@ const Votacao = () => {
       <ProgressBar />
       <MinisterioSelector />
       <EtapaIndicador />
-
-      {/* Componente de Explicação - Etapa 1 */}
-      <ComponenteExplicacao
-        tempoLeitura={120}
-        autoAvancar={false}
-      />
-
-      {/* Formulário de Indicação - Etapa 2 */}
-      <FormularioIndicacao />
-
-      {/* Tela Principal de Votação - Etapa 3 */}
-      <TelaPrincipalVotacao />
     </div>
   );
 };

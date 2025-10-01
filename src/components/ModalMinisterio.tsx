@@ -55,7 +55,7 @@ const ModalMinisterio = ({
 
       {/* Modal */}
       <div
-        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col animate-scaleIn"
+        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[95vh] flex flex-col animate-scaleIn"
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? "modal-title" : undefined}

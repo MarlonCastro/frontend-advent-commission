@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BookOpen, Clock, Users, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
 import { useVotacao } from '../contexts/VotacaoContext';
+import { useNavigate } from 'react-router-dom';
 import ModalMinisterio from './ModalMinisterio';
 
 interface ComponenteExplicacaoProps {
@@ -13,6 +14,7 @@ const ComponenteExplicacao = ({
   autoAvancar = false
 }: ComponenteExplicacaoProps) => {
   const { ministerioAtual, proximaEtapa, etapaAtual, cancelarMinisterio } = useVotacao();
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tempoRestante, setTempoRestante] = useState(tempoLeitura);
   const [confirmacaoAberta, setConfirmacaoAberta] = useState(false);
@@ -78,11 +80,13 @@ const ComponenteExplicacao = ({
     proximaEtapa();
     setIsModalOpen(false);
     setConfirmacaoAberta(false);
+    navigate('/votacao/indicacao');
   };
 
   const handleVoltar = () => {
     cancelarMinisterio();
     setIsModalOpen(false);
+    navigate('/votacao');
   };
 
   const handleIniciarIndicacoes = () => {

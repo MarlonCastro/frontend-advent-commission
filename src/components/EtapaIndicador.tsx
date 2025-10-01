@@ -30,10 +30,8 @@ const EtapaIndicador = () => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h2 className="text-xl font-bold text-gray-800 mb-6">Etapas do Processo</h2>
-
-      {/* Desktop - Horizontal */}
+    <div className="bg-white rounded-lg shadow-md p-4 mb-4">
+      {/* Desktop - Horizontal Compacto */}
       <div className="hidden md:flex items-center justify-between">
         {etapas.map((etapa, index) => {
           const Icone = etapa.icone;
@@ -48,30 +46,30 @@ const EtapaIndicador = () => {
                 {/* Ícone/Número */}
                 <div
                   className={`
-                    w-16 h-16 rounded-full flex items-center justify-center border-4 transition-all
+                    w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all
                     ${isConcluida ? 'bg-green-500 border-green-500' : ''}
                     ${isAtual ? 'bg-blue-500 border-blue-500 ring-4 ring-blue-200' : ''}
                     ${isProxima ? 'bg-gray-100 border-gray-300' : ''}
                   `}
                 >
                   {isConcluida ? (
-                    <Check className="text-white" size={28} />
+                    <Check className="text-white" size={20} />
                   ) : (
                     <Icone
                       className={`
                         ${isAtual ? 'text-white' : ''}
                         ${isProxima ? 'text-gray-400' : ''}
                       `}
-                      size={28}
+                      size={20}
                     />
                   )}
                 </div>
 
                 {/* Texto */}
-                <div className="mt-3 text-center">
+                <div className="mt-2 text-center">
                   <p
                     className={`
-                      font-bold text-sm mb-1
+                      font-bold text-xs mb-1
                       ${isAtual ? 'text-blue-600' : ''}
                       ${isConcluida ? 'text-green-600' : ''}
                       ${isProxima ? 'text-gray-400' : ''}
@@ -79,13 +77,12 @@ const EtapaIndicador = () => {
                   >
                     {etapa.titulo}
                   </p>
-                  <p className="text-xs text-gray-500">{etapa.descricao}</p>
                 </div>
               </div>
 
               {/* Linha Conectora */}
               {index < etapas.length - 1 && (
-                <div className="flex-1 h-1 mx-4 -mt-12">
+                <div className="flex-1 h-1 mx-2 -mt-8">
                   <div
                     className={`
                       h-full rounded transition-all

@@ -8,6 +8,9 @@ import Resultados from './pages/Resultados';
 import Votacao from './pages/Votacao';
 import Assembleia from './pages/Assembleia';
 import Relatorios from './pages/Relatorios';
+import ComponenteExplicacao from './components/ComponenteExplicacao';
+import FormularioIndicacao from './components/FormularioIndicacao';
+import TelaPrincipalVotacao from './components/TelaPrincipalVotacao';
 
 function App() {
   return (
@@ -26,6 +29,13 @@ function App() {
             <Route path="votacao" element={<Votacao />} />
             <Route path="assembleia" element={<Assembleia />} />
             <Route path="relatorios" element={<Relatorios />} />
+          </Route>
+
+          {/* Rotas sem Layout (tela cheia para etapas) */}
+          <Route path="votacao">
+            <Route path="explicacao" element={<ComponenteExplicacao tempoLeitura={120} autoAvancar={false} />} />
+            <Route path="indicacao" element={<FormularioIndicacao />} />
+            <Route path="votando" element={<TelaPrincipalVotacao />} />
           </Route>
         </Routes>
       </Router>

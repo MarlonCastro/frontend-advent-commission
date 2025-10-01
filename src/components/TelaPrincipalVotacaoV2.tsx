@@ -130,7 +130,7 @@ const TelaPrincipalVotacaoV2 = () => {
                   <p className="text-gray-500">Nenhum candidato disponível</p>
                 </div>
               ) : (
-                <div className="space-y-3 max-h-[calc(100vh-300px)] overflow-y-auto pr-2">
+                <div className="space-y-3 h-[calc(100vh-500px)] overflow-y-auto pr-2">
                   {candidatos.map((candidato) => {
                     const isVotado = candidatoVotado === candidato.id;
 
@@ -170,15 +170,15 @@ const TelaPrincipalVotacaoV2 = () => {
               )}
             </div>
 
-            {/* Coluna Direita - Controles e Contador */}
+            {/* Coluna Direita - Contador e Controles */}
             <div className="space-y-6">
+              <ContadorVotos candidatos={candidatos} />
               <ControlesVotacao
                 candidatos={candidatos}
                 onDesfazerVoto={handleDesfazerVoto}
                 onZerarCandidato={handleZerarCandidato}
                 historicoVotos={historicoVotos}
               />
-              <ContadorVotos candidatos={candidatos} />
             </div>
           </div>
 
