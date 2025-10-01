@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { VotacaoProvider } from './contexts/VotacaoContext';
 import AppLayout from './components/AppLayout';
 import Layout from './components/Layout';
