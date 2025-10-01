@@ -1,0 +1,216 @@
+1 - Crie um projeto React com Vite para um sistema de votação de ministérios da Igreja Adventista. Configure:
+
+1. Estrutura de pastas: src/components, src/pages, src/hooks, src/utils, src/data
+2. Instale dependências: react-router-dom, lucide-react, tailwindcss, jspdf, react-select
+3. Configure Tailwind CSS
+4. Crie um layout base responsivo com header "Sistema de Votação - Igreja Adventista"
+5. Implemente um hook customizado useLocalStorage para persistir dados
+6. Crie arquivo src/data/ministerios.js com lista de ministérios mocados:
+ - Ancião/Anciã, Diácono/Diaconisa, Secretário(a), Tesoureiro(a), Escola Sabatina, Jovens, Mulheres, Música
+ - Cada ministério deve ter: id, nome, descricao, vagas, explicacao (texto longo)
+
+Estruture o App.js com roteamento básico.
+
+2 -Implemente um Context (VotacaoContext) para gerenciar o estado global do sistema:
+
+1. Estados necessários:
+ - ministerios (lista completa)
+ - ministerioAtual (ministério sendo votado)
+ - etapaAtual (1: explicação, 2: indicação, 3: votação)
+ - candidatos (array com nomes e votos)
+ - progressoGeral (% de ministérios finalizados)
+ - resultados (histórico de votações)
+
+2. Funções do Context:
+ - selecionarMinisterio(id)
+ - proximaEtapa()
+ - adicionarCandidato(nome)
+ - removerCandidato(id)
+ - adicionarVoto(candidatoId)
+ - finalizarMinisterio()
+ - resetarSistema()
+
+3. Persista todos os dados no localStorage automaticamente
+4. Implemente estimativa de tempo baseada no histórico
+3 - Crie os componentes principais:
+
+1. **ProgressBar** - Barra de progresso mostrando:
+ - % de ministérios finalizados
+ - Ministério atual
+ - Estimativa de término baseada em tempo médio por ministério
+ - Ícones do Lucide React
+
+2. **MinisterioSelector** - Seletor de ministério com:
+ - React-Select com busca
+ - Filtro para mostrar: todos, pendentes, finalizados
+ - Status visual (pendente/finalizado) com cores
+
+3. **EtapaIndicador** - Indicador das 3 etapas:
+ - Design com steps/breadcrumb
+ - Destaque da etapa atual
+ - Ícones para cada etapa
+
+4. **Layout** responsivo com sidebar para desktop e drawer para mobile
+ - Menu hamburguer para mobile
+ - Navegação entre: Votação, Modo Assembleia, Relatórios
+
+4 - Implemente a primeira etapa do processo de votação:
+
+1. **ComponenteExplicacao** que mostra:
+ - Modal elegante com título do ministério
+ - Texto explicativo completo sobre as responsabilidades
+ - Número de vagas disponíveis
+ - Botões: "Voltar" e "Iniciar Indicações"
+ - Timer opcional para leitura (ex: 2 minutos)
+
+2. **ModalMinisterio** reutilizável:
+ - Backdrop com blur
+ - Animações de entrada/saída
+ - Responsivo para mobile
+ - Scroll interno se texto for longo
+
+3. Funcionalidades:
+ - Auto-avanço após tempo limite (opcional)
+ - Confirmação antes de prosseguir
+ - Histórico de ministérios já explicados
+
+Utilize Tailwind para styling moderno e acessível.
+
+5 - Desenvolva a etapa de indicação de nomes:
+
+1. **FormularioIndicacao**:
+ - Input para adicionar nomes com validação
+ - Lista de candidatos adicionados com opção de remover
+ - Botão "Adicionar Candidato" com ícone
+ - Mínimo de 1 candidato para prosseguir
+ - Máximo sugerido baseado no tipo de ministério
+
+2. **ListaCandidatos**:
+ - Cards dos candidatos com nome e botão remover
+ - Animação ao adicionar/remover
+ - Reordenação por drag-and-drop (opcional)
+ - Contador de candidatos
+
+3. **ValidacoesSugeridas**:
+ - Verificar nomes duplicados
+ - Sugestão de candidatos baseada em ministérios anteriores
+ - Alerta se número de candidatos < vagas
+
+4. Interface intuitiva com feedback visual para ações do usuário
+
+
+6 - Implemente o sistema de votação principal:
+
+1. **TelaPrincipalVotacao**:
+ - Lista de candidatos em cards grandes
+ - Botão "+1 Voto" para cada candidato
+ - Contador de votos em tempo real
+ - Total de votos registrados
+ - Botão "Finalizar Votação"
+
+2. **ContadorVotos**:
+ - Display grande e legível
+ - Animação ao incrementar votos
+ - Porcentagem de votos por candidato
+ - Ranking dinâmico (ordenação automática)
+
+3. **ControlesVotacao**:
+ - Botão "Desfazer último voto"
+ - Zerar votos de um candidato específico
+ - Pause/Resume da votação
+ - Timer da sessão de votação
+
+4. **ConfirmacaoFinalizacao**:
+ - Modal com resumo dos resultados
+ - Confirmação dupla para finalizar
+ - Opção de continuar votando
+
+7 - Crie o modo assembleia para projeção:
+
+1. **ModoAssembleia** - Tela fullscreen:
+ - Layout otimizado para projeção
+ - Fonte grande e legível
+ - Cores com alto contraste
+ - Atualização em tempo real dos votos
+
+2. **VisualizacaoResultados**:
+ - Gráfico de barras simples (CSS puro)
+ - Ranking dos candidatos
+ - Destaque para vencedor(es)
+ - Animações suaves
+
+3. **ControladorAssembleia**:
+ - Tela de controle separada (para operador)
+ - Sincronização via localStorage
+ - Botões grandes para adicionar votos
+ - Modo escuro/claro para assembleia
+
+4. **EstimativaTempo**:
+ - Tempo decorrido da sessão
+ - Estimativa para conclusão
+ - Progresso visual dos ministérios
+
+Implemente teclas de atalho para operação rápida (F11 fullscreen, espaço para adicionar voto, etc.)
+
+8 - Desenvolva o sistema de relatórios finais:
+
+1. **GeradorRelatorio** usando jsPDF:
+ - Cabeçalho com logo e data da assembleia
+ - Seção por ministério com candidatos e votos
+ - Gráficos simples de resultados
+ - Rodapé com assinaturas (Presidente, Secretário)
+
+2. **ResumoExecutivo**:
+ - Dashboard com todos os ministérios
+ - Estatísticas gerais (total de votos, participação)
+ - Lista de eleitos por ministério
+ - Tempo total da assembleia
+
+3. **ExportacaoImportacao**:
+ - Export para JSON (backup completo)
+ - Import de dados de anos anteriores
+ - Export CSV para planilhas
+ - Limpeza de dados com confirmação
+
+4. **VisualizacaoFinal**:
+ - Página de congratulações
+ - Lista completa da nova liderança
+ - Opção de enviar relatório por email (mailto)
+ - Reset para nova assembleia
+
+Inclua validações e tratamento de erros em todas as operações.
+
+9 - Finalize o sistema com melhorias de experiência:
+
+1. **FeedbackVisual**:
+ - Loading states para todas as ações
+ - Toasts para confirmações/erros
+ - Skeleton loading para listas
+ - Micro-animações com CSS/Tailwind
+
+2. **Acessibilidade**:
+ - Navegação por teclado
+ - Labels adequados para screen readers
+ - Contraste adequado de cores
+ - Focus indicators visíveis
+
+3. **ResponsividadeFinal**:
+ - Teste em diferentes tamanhos de tela
+ - Menu mobile otimizado
+ - Touch targets adequados
+ - Orientação landscape/portrait
+
+4. **PerformanceOtimizacao**:
+ - Lazy loading de componentes
+ - Memoização onde necessário
+ - Otimização de re-renders
+ - Debounce em inputs de busca
+
+5. **ConfiguracaoFinal**:
+ - Arquivo de configuração para personalizar igreja
+ - Temas de cores (claro/escuro)
+ - Configuração de ministérios customizáveis
+ - Build otimizado para produção
+
+Teste todo o fluxo e documente o processo de uso.
+
