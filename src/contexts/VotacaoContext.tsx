@@ -22,6 +22,20 @@ interface ResultadoMinisterio {
   tempoGasto: number; // em segundos
 }
 
+interface PreCadastroMinisterio {
+  ministerioId: string;
+  liderancaAtual: {
+    diretor: string;
+    diretorAssociado?: string;
+  };
+  interessados: string[];
+}
+
+interface ConfiguracaoVagas {
+  ministerioId: string;
+  numeroVagas: number;
+}
+
 interface VotacaoContextData {
   // Estados
   ministerios: Ministerio[];
@@ -31,6 +45,14 @@ interface VotacaoContextData {
   progressoGeral: number;
   resultados: ResultadoMinisterio[];
   tempoEstimado: number; // em segundos
+
+  // Configuração da Comissão
+  nomeIgreja: string;
+  ministeriosSelecionados: string[];
+  departamentosPersonalizados: Ministerio[];
+  ministeriosDisponiveis: Ministerio[];
+  preCadastros: PreCadastroMinisterio[];
+  configuracoesVagas: ConfiguracaoVagas[];
 
   // Funções
   selecionarMinisterio: (id: string) => void;
@@ -44,6 +66,25 @@ interface VotacaoContextData {
   zerarVotosCandidato: (candidatoId: string) => void;
   finalizarMinisterio: () => void;
   resetarSistema: () => void;
+
+  // Funções de Configuração
+  setNomeIgreja: (nome: string) => void;
+  toggleMinisterioSelecionado: (id: string) => void;
+  adicionarDepartamentoPersonalizado: (nome: string, descricao: string, vagas: number) => void;
+  removerDepartamentoPersonalizado: (id: string) => void;
+  selecionarTodosMinisterios: () => void;
+  desselecionarTodosMinisterios: () => void;
+
+  // Funções de Pré-Cadastro
+  setLiderancaAtual: (ministerioId: string, diretor: string, diretorAssociado?: string) => void;
+  adicionarInteressado: (ministerioId: string, nome: string) => void;
+  removerInteressado: (ministerioId: string, nome: string) => void;
+  getPreCadastro: (ministerioId: string) => PreCadastroMinisterio | undefined;
+  getSugestoesMinisterio: (ministerioId: string) => string[];
+
+  // Funções de Configuração de Vagas
+  setNumeroVagas: (ministerioId: string, numeroVagas: number) => void;
+  getNumeroVagas: (ministerioId: string) => number;
 }
 
 const VotacaoContext = createContext<VotacaoContextData | undefined>(undefined);
@@ -60,21 +101,37 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
   const [resultados, setResultados] = useLocalStorage<ResultadoMinisterio[]>('resultados', []);
   const [inicioEtapa, setInicioEtapa] = useState<number>(Date.now());
 
-  // Estado derivado
+  // Configuração da Comissão
+  const [nomeIgreja, setNomeIgreja] = useLocalStorage<string>('nomeIgreja', '');
+  const [ministeriosSelecionados, setMinisteriosSelecionados] = useLocalStorage<string[]>('ministeriosSelecionados', []);
+  const [departamentosPersonalizados, setDepartamentosPersonalizados] = useLocalStorage<Ministerio[]>('departamentosPersonalizados', []);
+  const [preCadastros, setPreCadastros] = useLocalStorage<PreCadastroMinisterio[]>('preCadastros', []);
+  const [configuracoesVagas, setConfiguracoesVagas] = useLocalStorage<ConfiguracaoVagas[]>('configuracoesVagas', []);
+
+  // Estado derivado - Ministérios disponíveis (padrão + personalizados)
+  const todosMinisterios = [...ministerios, ...departamentosPersonalizados];
+
+  // Ministérios que serão usados no processo (apenas os selecionados)
+  const ministeriosDisponiveis = ministeriosSelecionados.length > 0
+    ? todosMinisterios.filter(m => ministeriosSelecionados.includes(m.id))
+    : todosMinisterios;
+
   const ministerioAtual = ministerioAtualId
-    ? ministerios.find(m => m.id === ministerioAtualId) || null
+    ? ministeriosDisponiveis.find(m => m.id === ministerioAtualId) || null
     : null;
 
   // Calcula progresso geral (% de ministérios finalizados)
-  const progressoGeral = Math.round((resultados.length / ministerios.length) * 100);
+  const progressoGeral = ministeriosDisponiveis.length > 0
+    ? Math.round((resultados.length / ministeriosDisponiveis.length) * 100)
+    : 0;
 
   // Calcula tempo estimado baseado no histórico
   const tempoEstimado = (() => {
-    if (resultados.length === 0) return 0;
+    if (resultados.length === 0 || ministeriosDisponiveis.length === 0) return 0;
 
     const tempoTotal = resultados.reduce((acc, r) => acc + r.tempoGasto, 0);
     const tempoMedio = tempoTotal / resultados.length;
-    const ministeriosRestantes = ministerios.length - resultados.length;
+    const ministeriosRestantes = ministeriosDisponiveis.length - resultados.length;
 
     return Math.round(tempoMedio * ministeriosRestantes);
   })();
@@ -204,7 +261,178 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
       setCandidatos([]);
       setResultados([]);
       setInicioEtapa(Date.now());
+      setNomeIgreja('');
+      setMinisteriosSelecionados([]);
+      setDepartamentosPersonalizados([]);
+      setPreCadastros([]);
+      setConfiguracoesVagas([]);
     }
+  };
+
+  // ========== Funções de Configuração da Comissão ==========
+
+  // Função: Toggle Ministério Selecionado
+  const toggleMinisterioSelecionado = (id: string) => {
+    if (ministeriosSelecionados.includes(id)) {
+      setMinisteriosSelecionados(ministeriosSelecionados.filter(mid => mid !== id));
+    } else {
+      setMinisteriosSelecionados([...ministeriosSelecionados, id]);
+    }
+  };
+
+  // Função: Adicionar Departamento Personalizado
+  const adicionarDepartamentoPersonalizado = (nome: string, descricao: string, vagas: number) => {
+    const novoDepartamento: Ministerio = {
+      id: `personalizado-${Date.now()}`,
+      nome,
+      descricao,
+      explicacao: descricao,
+      categoria: 'personalizado',
+      cargos: Array.from({ length: vagas }, (_, i) => ({
+        id: `cargo-${i + 1}`,
+        nome: `Cargo ${i + 1}`,
+        tipo: 'diretor' as const,
+      })),
+    };
+
+    setDepartamentosPersonalizados([...departamentosPersonalizados, novoDepartamento]);
+    setMinisteriosSelecionados([...ministeriosSelecionados, novoDepartamento.id]);
+  };
+
+  // Função: Remover Departamento Personalizado
+  const removerDepartamentoPersonalizado = (id: string) => {
+    setDepartamentosPersonalizados(departamentosPersonalizados.filter(d => d.id !== id));
+    setMinisteriosSelecionados(ministeriosSelecionados.filter(mid => mid !== id));
+  };
+
+  // Função: Selecionar Todos os Ministérios
+  const selecionarTodosMinisterios = () => {
+    const todosIds = todosMinisterios.map(m => m.id);
+    setMinisteriosSelecionados(todosIds);
+  };
+
+  // Função: Desselecionar Todos os Ministérios
+  const desselecionarTodosMinisterios = () => {
+    setMinisteriosSelecionados([]);
+  };
+
+  // ========== Funções de Pré-Cadastro ==========
+
+  // Função: Definir Liderança Atual
+  const setLiderancaAtual = (ministerioId: string, diretor: string, diretorAssociado?: string) => {
+    const preCadastroExistente = preCadastros.find(p => p.ministerioId === ministerioId);
+
+    if (preCadastroExistente) {
+      setPreCadastros(preCadastros.map(p =>
+        p.ministerioId === ministerioId
+          ? { ...p, liderancaAtual: { diretor, diretorAssociado } }
+          : p
+      ));
+    } else {
+      setPreCadastros([...preCadastros, {
+        ministerioId,
+        liderancaAtual: { diretor, diretorAssociado },
+        interessados: []
+      }]);
+    }
+  };
+
+  // Função: Adicionar Interessado
+  const adicionarInteressado = (ministerioId: string, nome: string) => {
+    const preCadastroExistente = preCadastros.find(p => p.ministerioId === ministerioId);
+
+    if (preCadastroExistente) {
+      if (!preCadastroExistente.interessados.includes(nome)) {
+        setPreCadastros(preCadastros.map(p =>
+          p.ministerioId === ministerioId
+            ? { ...p, interessados: [...p.interessados, nome] }
+            : p
+        ));
+      }
+    } else {
+      setPreCadastros([...preCadastros, {
+        ministerioId,
+        liderancaAtual: { diretor: '', diretorAssociado: '' },
+        interessados: [nome]
+      }]);
+    }
+  };
+
+  // Função: Remover Interessado
+  const removerInteressado = (ministerioId: string, nome: string) => {
+    setPreCadastros(preCadastros.map(p =>
+      p.ministerioId === ministerioId
+        ? { ...p, interessados: p.interessados.filter(i => i !== nome) }
+        : p
+    ));
+  };
+
+  // Função: Obter Pré-Cadastro de um Ministério
+  const getPreCadastro = (ministerioId: string) => {
+    return preCadastros.find(p => p.ministerioId === ministerioId);
+  };
+
+  // Função: Obter Sugestões de um Ministério (liderança + interessados + histórico)
+  const getSugestoesMinisterio = (ministerioId: string) => {
+    const sugestoes = new Set<string>();
+
+    // Adicionar do pré-cadastro
+    const preCadastro = preCadastros.find(p => p.ministerioId === ministerioId);
+    if (preCadastro) {
+      if (preCadastro.liderancaAtual.diretor) {
+        sugestoes.add(preCadastro.liderancaAtual.diretor);
+      }
+      if (preCadastro.liderancaAtual.diretorAssociado) {
+        sugestoes.add(preCadastro.liderancaAtual.diretorAssociado);
+      }
+      preCadastro.interessados.forEach(i => sugestoes.add(i));
+    }
+
+    // Adicionar de resultados anteriores
+    resultados.forEach(resultado => {
+      resultado.candidatos.forEach(candidato => {
+        sugestoes.add(candidato.nome);
+      });
+    });
+
+    return Array.from(sugestoes);
+  };
+
+  // ========== Funções de Configuração de Vagas ==========
+
+  // Função: Definir Número de Vagas
+  const setNumeroVagas = (ministerioId: string, numeroVagas: number) => {
+    const configuracaoExistente = configuracoesVagas.find(c => c.ministerioId === ministerioId);
+
+    if (configuracaoExistente) {
+      setConfiguracoesVagas(configuracoesVagas.map(c =>
+        c.ministerioId === ministerioId ? { ...c, numeroVagas } : c
+      ));
+    } else {
+      setConfiguracoesVagas([...configuracoesVagas, { ministerioId, numeroVagas }]);
+    }
+  };
+
+  // Função: Obter Número de Vagas
+  const getNumeroVagas = (ministerioId: string): number => {
+    const configuracao = configuracoesVagas.find(c => c.ministerioId === ministerioId);
+
+    // Valores padrão/fixos para ministérios especiais
+    if (ministerioId === 'desbravadores' || ministerioId === 'aventureiros') {
+      return 3; // FIXO: 1 Diretor + 2 Diretores Associados
+    }
+
+    if (ministerioId === 'diaconos' || ministerioId === 'diaconisas') {
+      return configuracao?.numeroVagas || 1; // Padrão 1 (Primeiro Diácono/Diaconisa)
+    }
+
+    if (ministerioId === 'anciao') {
+      return configuracao?.numeroVagas || 4; // Padrão 4 anciãos (configurável)
+    }
+
+    // Para outros ministérios, usar o número de cargos definido
+    const ministerio = todosMinisterios.find(m => m.id === ministerioId);
+    return ministerio?.cargos.length || 2;
   };
 
   const value: VotacaoContextData = {
@@ -215,6 +443,12 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
     progressoGeral,
     resultados,
     tempoEstimado,
+    nomeIgreja,
+    ministeriosSelecionados,
+    departamentosPersonalizados,
+    ministeriosDisponiveis,
+    preCadastros,
+    configuracoesVagas,
     selecionarMinisterio,
     proximaEtapa,
     voltarEtapa,
@@ -226,6 +460,19 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
     zerarVotosCandidato,
     finalizarMinisterio,
     resetarSistema,
+    setNomeIgreja,
+    toggleMinisterioSelecionado,
+    adicionarDepartamentoPersonalizado,
+    removerDepartamentoPersonalizado,
+    selecionarTodosMinisterios,
+    desselecionarTodosMinisterios,
+    setLiderancaAtual,
+    adicionarInteressado,
+    removerInteressado,
+    getPreCadastro,
+    getSugestoesMinisterio,
+    setNumeroVagas,
+    getNumeroVagas,
   };
 
   return (

@@ -13,7 +13,7 @@ const ComponenteExplicacao = ({
   tempoLeitura = 120,
   autoAvancar = false
 }: ComponenteExplicacaoProps) => {
-  const { ministerioAtual, proximaEtapa, etapaAtual, cancelarMinisterio } = useVotacao();
+  const { ministerioAtual, proximaEtapa, etapaAtual, cancelarMinisterio, getNumeroVagas } = useVotacao();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tempoRestante, setTempoRestante] = useState(tempoLeitura);
@@ -153,8 +153,8 @@ const ComponenteExplicacao = ({
           <div className="flex items-center justify-center gap-2 p-4 bg-gray-50 rounded-lg">
             <Users className="text-gray-600" size={24} />
             <span className="text-lg text-gray-700">
-              <span className="font-bold text-2xl text-blue-600">{ministerioAtual.cargos.length}</span>
-              {' '}cargo{ministerioAtual.cargos.length !== 1 ? 's' : ''} disponível{ministerioAtual.cargos.length !== 1 ? 'eis' : ''}
+              <span className="font-bold text-2xl text-blue-600">{getNumeroVagas(ministerioAtual.id)}</span>
+              {' '}vaga{getNumeroVagas(ministerioAtual.id) !== 1 ? 's' : ''} disponíve{getNumeroVagas(ministerioAtual.id) !== 1 ? 'is' : 'l'}
             </span>
           </div>
 

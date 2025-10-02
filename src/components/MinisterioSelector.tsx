@@ -2,12 +2,14 @@ import { useState } from 'react';
 import Select from 'react-select';
 import { CheckCircle, Circle, Filter } from 'lucide-react';
 import { useVotacao } from '../contexts/VotacaoContext';
+import { useNavigate } from 'react-router-dom';
 
 type FiltroStatus = 'todos' | 'pendentes' | 'finalizados';
 
 const MinisterioSelector = () => {
-  const { ministerios, resultados, selecionarMinisterio, ministerioAtual } = useVotacao();
+  const { ministeriosDisponiveis, resultados, selecionarMinisterio, ministerioAtual } = useVotacao();
   const [filtroStatus, setFiltroStatus] = useState<FiltroStatus>('todos');
+  const navigate = useNavigate();
 
   // Verifica se ministério está finalizado
   const isMinisterioFinalizado = (ministerioId: string) => {
@@ -15,7 +17,7 @@ const MinisterioSelector = () => {
   };
 
   // Filtra ministérios baseado no status
-  const ministeriosFiltrados = ministerios.filter(m => {
+  const ministeriosFiltrados = ministeriosDisponiveis.filter(m => {
     if (filtroStatus === 'finalizados') {
       return isMinisterioFinalizado(m.id);
     }
@@ -57,6 +59,7 @@ const MinisterioSelector = () => {
   const handleSelecao = (opcao: any) => {
     if (opcao) {
       selecionarMinisterio(opcao.value);
+      navigate('/votacao/explicacao');
     }
   };
 
@@ -83,7 +86,7 @@ const MinisterioSelector = () => {
             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
         >
-          Todos ({ministerios.length})
+          Todos ({ministeriosDisponiveis.length})
         </button>
         <button
           onClick={() => setFiltroStatus('pendentes')}
@@ -92,7 +95,7 @@ const MinisterioSelector = () => {
             : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
             }`}
         >
-          Pendentes ({ministerios.filter(m => !isMinisterioFinalizado(m.id)).length})
+          Pendentes ({ministeriosDisponiveis.filter(m => !isMinisterioFinalizado(m.id)).length})
         </button>
         <button
           onClick={() => setFiltroStatus('finalizados')}
@@ -135,8 +138,8 @@ const MinisterioSelector = () => {
 
       {/* Contador */}
       <div className="mt-4 text-sm text-gray-600">
-        Exibindo <span className="font-semibold">{ministeriosFiltrados.length}</span> de{' '}
-        <span className="font-semibold">{ministerios.length}</span> ministérios
+        Exibindo <span className="font-semibold">{ministeriosFiltrados?.length}</span> de{' '}
+        <span className="font-semibold">{ministeriosDisponiveis?.length}</span> ministérios
       </div>
     </div>
   );

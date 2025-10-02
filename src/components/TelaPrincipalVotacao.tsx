@@ -111,6 +111,14 @@ const TelaPrincipalVotacaoV2 = () => {
                   <ArrowLeft size={20} />
                   Voltar
                 </button>
+                <button
+                  onClick={handleFinalizarVotacao}
+                  disabled={totalVotos === 0}
+                  className="flex items-center gap-2 px-6 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-lg transition shadow-lg hover:shadow-xl"
+                >
+                  <CheckCircle size={20} />
+                  Finalizar Votação
+                </button>
               </div>
             </div>
           </div>
@@ -179,25 +187,6 @@ const TelaPrincipalVotacaoV2 = () => {
                 historicoVotos={historicoVotos}
               />
               <ContadorVotos candidatos={candidatos} />
-            </div>
-          </div>
-
-          {/* Botões de Ação */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex justify-end">
-              <button
-                onClick={handleFinalizarVotacao}
-                disabled={totalVotos === 0}
-                className="flex items-center gap-2 px-8 py-4 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-lg rounded-lg transition shadow-lg hover:shadow-xl"
-              >
-                <CheckCircle size={24} />
-                Finalizar Votação
-              </button>
-              {totalVotos === 0 && (
-                <p className="text-center text-sm text-gray-500 ml-4 self-center">
-                  Adicione pelo menos 1 voto para finalizar
-                </p>
-              )}
             </div>
           </div>
         </div>

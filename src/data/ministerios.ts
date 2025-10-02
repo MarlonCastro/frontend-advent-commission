@@ -8,7 +8,7 @@ export interface Ministerio {
   id: string;
   nome: string;
   descricao: string;
-  categoria: 'lideranca' | 'ministerio' | 'clube';
+  categoria: 'lideranca' | 'ministerio' | 'clube' | 'personalizado';
   cargos: Cargo[];
   explicacao: string;
 }
@@ -29,17 +29,24 @@ export const ministerios: Ministerio[] = [
     explicacao: 'O ancionato é composto por membros escolhidos para auxiliar o pastor na administração da igreja e no cuidado espiritual dos membros. Os anciãos são responsáveis por visitar os membros, realizar cerimônias religiosas como batismos, casamentos e comunhões, além de aconselhamento espiritual. São líderes que devem ser exemplo de vida cristã, tendo bom testemunho dentro e fora da igreja.'
   },
   {
-    id: 'diaconato',
-    nome: 'Diaconato',
+    id: 'diaconos',
+    nome: 'Diáconos',
     descricao: 'Presta serviços práticos, cuidando de diversos aspectos das reuniões e da propriedade da igreja',
     categoria: 'lideranca',
     cargos: [
-      { id: 'diacono-diretor', nome: 'Diretor de Diáconos', tipo: 'diretor' },
-      { id: 'diacono-associado', nome: 'Diretor Associado de Diáconos', tipo: 'diretor_associado' },
-      { id: 'diaconisa-diretora', nome: 'Diretora de Diaconisas', tipo: 'diretor' },
-      { id: 'diaconisa-associada', nome: 'Diretora Associada de Diaconisas', tipo: 'diretor_associado' },
+      { id: 'diacono-principal', nome: 'Primeiro Diácono', tipo: 'principal' },
     ],
-    explicacao: 'Os diáconos e diaconisas são responsáveis pelos aspectos práticos dos cultos e eventos da igreja. Suas funções incluem: preparar o púlpito e a mesa da Santa Ceia, organizar o batistério, receber e acomodar visitantes, cuidar da conservação do templo, auxiliar na distribuição da comunhão, e manter a ordem durante os cultos. São servos dedicados que garantem que tudo funcione bem nos aspectos operacionais.'
+    explicacao: 'Os diáconos são responsáveis pelos aspectos práticos dos cultos e eventos da igreja. Suas funções incluem: preparar o púlpito e a mesa da Santa Ceia, organizar o batistério, receber e acomodar visitantes, cuidar da conservação do templo, auxiliar na distribuição da comunhão, e manter a ordem durante os cultos. São servos dedicados que garantem que tudo funcione bem nos aspectos operacionais.'
+  },
+  {
+    id: 'diaconisas',
+    nome: 'Diaconisas',
+    descricao: 'Presta serviços práticos, cuidando de diversos aspectos das reuniões e da propriedade da igreja',
+    categoria: 'lideranca',
+    cargos: [
+      { id: 'diaconisa-principal', nome: 'Primeira Diaconisa', tipo: 'principal' },
+    ],
+    explicacao: 'As diaconisas são responsáveis pelos aspectos práticos dos cultos e eventos da igreja. Suas funções incluem: preparar o púlpito e a mesa da Santa Ceia, organizar o batistério, receber e acomodar visitantes, cuidar da conservação do templo, auxiliar na distribuição da comunhão, e manter a ordem durante os cultos. São servas dedicadas que garantem que tudo funcione bem nos aspectos operacionais.'
   },
   {
     id: 'secretaria',
@@ -104,7 +111,9 @@ export const ministerios: Ministerio[] = [
     descricao: 'Voltado para crianças de 6 a 9 anos, promovendo atividades recreativas e espirituais',
     categoria: 'clube',
     cargos: [
-      { id: 'aventureiros-diretor', nome: 'Diretor(a) de Aventureiros', tipo: 'principal' },
+      { id: 'aventureiros-diretor', nome: 'Diretor(a) de Aventureiros', tipo: 'diretor' },
+      { id: 'aventureiros-associado-1', nome: 'Diretor(a) Associado(a) de Aventureiros 1', tipo: 'diretor_associado' },
+      { id: 'aventureiros-associado-2', nome: 'Diretor(a) Associado(a) de Aventureiros 2', tipo: 'diretor_associado' },
     ],
     explicacao: 'O Clube de Aventureiros é um programa para crianças de 6 a 9 anos que combina atividades recreativas com ensino bíblico. As crianças aprendem através de brincadeiras, artesanato, histórias, música e atividades ao ar livre. O programa desenvolve habilidades sociais, ensina valores cristãos, promove vida saudável e cria memórias positivas sobre a igreja.'
   },
@@ -114,7 +123,9 @@ export const ministerios: Ministerio[] = [
     descricao: 'Para jovens de 10 a 15 anos, focado no desenvolvimento físico, mental e espiritual',
     categoria: 'clube',
     cargos: [
-      { id: 'desbravadores-diretor', nome: 'Diretor(a) de Desbravadores', tipo: 'principal' },
+      { id: 'desbravadores-diretor', nome: 'Diretor(a) de Desbravadores', tipo: 'diretor' },
+      { id: 'desbravadores-associado-1', nome: 'Diretor(a) Associado(a) de Desbravadores 1', tipo: 'diretor_associado' },
+      { id: 'desbravadores-associado-2', nome: 'Diretor(a) Associado(a) de Desbravadores 2', tipo: 'diretor_associado' },
     ],
     explicacao: 'O Clube de Desbravadores trabalha com pré-adolescentes e adolescentes (10-15 anos) através de um programa estruturado que inclui: campismo, nós e amarras, estudo da natureza, ordem unida, classes progressivas, especialidades, e atividades comunitárias. Desenvolve liderança, trabalho em equipe, respeito, disciplina e valores cristãos. Usa uniformes e organização similar ao escotismo.'
   },

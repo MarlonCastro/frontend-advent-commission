@@ -107,7 +107,7 @@ const Sidebar = ({ isOpen = true, onClose, isMobile = false }: SidebarProps) => 
         {/* Overlay */}
         {isOpen && (
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+            className="fixed inset-0 bg-black bg-opacity-30 z-40 md:hidden"
             onClick={onClose}
           />
         )}

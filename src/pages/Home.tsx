@@ -1,7 +1,11 @@
-import { Vote, Users, FileText, Info } from 'lucide-react';
+import { Vote, Users, FileText, Info, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useVotacao } from '../contexts/VotacaoContext';
 
 const Home = () => {
+  const { nomeIgreja, ministeriosSelecionados } = useVotacao();
+  const comissaoConfigurada = nomeIgreja.trim() !== '' && ministeriosSelecionados.length > 0;
+
   return (
     <div className="max-w-6xl mx-auto">
       {/* Hero Section */}
@@ -13,17 +17,53 @@ const Home = () => {
           <p className="text-lg text-gray-600 mb-6">
             Sistema para automatizar o processo de comissões de nomeações da Igreja Adventista
           </p>
+
+          {/* Status da Configuração */}
+          {comissaoConfigurada ? (
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg inline-block">
+              <p className="text-green-800 font-medium">
+                ✓ Comissão configurada: <span className="font-bold">{nomeIgreja}</span>
+              </p>
+              <p className="text-sm text-green-700">
+                {ministeriosSelecionados.length} ministério{ministeriosSelecionados.length !== 1 ? 's' : ''} selecionado{ministeriosSelecionados.length !== 1 ? 's' : ''}
+              </p>
+            </div>
+          ) : (
+            <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg inline-block">
+              <p className="text-yellow-800 font-medium">
+                ⚠ Configure a comissão antes de iniciar a votação
+              </p>
+            </div>
+          )}
+
           <div className="flex flex-wrap justify-center gap-4">
             <Link
-              to="/votacao"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition shadow-md hover:shadow-lg"
+              to="/votacao/configuracao"
+              className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-semibold transition shadow-md hover:shadow-lg"
             >
+              <Settings size={20} />
+              {comissaoConfigurada ? 'Reconfigurar Comissão' : 'Configurar Comissão'}
+            </Link>
+            <Link
+              to="/votacao"
+              className={`flex items-center gap-2 px-8 py-3 rounded-lg font-semibold transition shadow-md hover:shadow-lg ${comissaoConfigurada
+                ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                : 'bg-gray-300 cursor-not-allowed text-gray-500'
+                }`}
+              onClick={(e) => {
+                if (!comissaoConfigurada) {
+                  e.preventDefault();
+                }
+              }}
+            >
+              <Vote size={20} />
               Iniciar Votação
             </Link>
             <Link
               to="/relatorios"
-              className="bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-lg font-semibold transition shadow-md hover:shadow-lg"
+              className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-lg font-semibold transition shadow-md hover:shadow-lg"
             >
+              <FileText size={20} />
               Ver Relatórios
             </Link>
           </div>

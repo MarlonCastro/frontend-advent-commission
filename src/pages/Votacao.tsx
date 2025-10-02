@@ -3,42 +3,182 @@ import { useVotacao } from '../contexts/VotacaoContext';
 import ProgressBar from '../components/ProgressBar';
 import MinisterioSelector from '../components/MinisterioSelector';
 import EtapaIndicador from '../components/EtapaIndicador';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { AlertTriangle, FileText, Settings } from 'lucide-react';
 
 const Votacao = () => {
-  const { ministerioAtual, etapaAtual } = useVotacao();
+  const { nomeIgreja, ministeriosSelecionados, ministeriosDisponiveis, resultados } = useVotacao();
   const navigate = useNavigate();
+  const [showModalFinalizacao, setShowModalFinalizacao] = useState(false);
 
-  // Redirecionar para a rota apropriada baseado na etapa
+  // Verificar se a comissão está configurada
   useEffect(() => {
-    if (ministerioAtual && etapaAtual) {
-      switch (etapaAtual) {
-        case 1:
-          navigate('/votacao/explicacao');
-          break;
-        case 2:
-          navigate('/votacao/indicacao');
-          break;
-        case 3:
-          navigate('/votacao/votando');
-          break;
-      }
+    const comissaoConfigurada = nomeIgreja.trim() !== '' && ministeriosSelecionados.length > 0;
+
+    if (!comissaoConfigurada) {
+      navigate('/votacao/configuracao');
     }
-  }, [ministerioAtual, etapaAtual, navigate]);
+  }, [nomeIgreja, ministeriosSelecionados, navigate]);
+
+  const ministeriosFinalizados = resultados.length;
+  const totalMinisterios = ministeriosDisponiveis.length;
+  const todosFinalizados = ministeriosFinalizados === totalMinisterios && totalMinisterios > 0;
+
+  const handleFinalizarComissao = () => {
+    if (todosFinalizados) {
+      navigate('/relatorios');
+    } else {
+      setShowModalFinalizacao(true);
+    }
+  };
+
+  const handleConfirmarFinalizacao = () => {
+    setShowModalFinalizacao(false);
+    navigate('/relatorios');
+  };
+
+  const ministeriosPendentes = ministeriosDisponiveis.filter(
+    m => !resultados.some(r => r.ministerioId === m.id)
+  );
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Sistema de Votação</h1>
-        <p className="text-gray-600">
-          Gerencie o processo de votação para os ministérios da igreja
-        </p>
+    <>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">Sistema de Votação</h1>
+            <p className="text-gray-600">
+              Gerencie o processo de votação para os ministérios da igreja
+            </p>
+          </div>
+
+          {/* Botões de Ação */}
+          <div className="flex items-center gap-3">
+            {/* Botão Reconfigurar Comissão */}
+            <button
+              onClick={() => navigate('/votacao/configuracao')}
+              className="flex items-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition shadow-md hover:shadow-lg"
+              title="Reconfigurar Comissão"
+            >
+              <Settings size={20} />
+              <span className="hidden sm:inline">Configurar</span>
+            </button>
+
+            {/* Botão Finalizar Comissão */}
+            <button
+              onClick={handleFinalizarComissao}
+              disabled={ministeriosFinalizados === 0}
+              className={`flex items-center gap-2 px-6 py-3 font-bold rounded-lg transition shadow-lg hover:shadow-xl ${todosFinalizados
+                ? 'bg-green-600 hover:bg-green-700 text-white'
+                : ministeriosFinalizados > 0
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                  : 'bg-gray-300 cursor-not-allowed text-gray-500'
+                }`}
+            >
+              <FileText size={20} />
+              {todosFinalizados ? 'Ver Relatórios' : 'Finalizar Comissão'}
+            </button>
+          </div>
+        </div>
+
+        <ProgressBar />
+        <MinisterioSelector />
+        <EtapaIndicador />
       </div>
 
-      <ProgressBar />
-      <MinisterioSelector />
-      <EtapaIndicador />
-    </div>
+      {/* Modal de Confirmação de Finalização */}
+      {showModalFinalizacao && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 animate-scaleIn">
+            <div className="text-center mb-6">
+              <div className="flex justify-center mb-4">
+                <AlertTriangle className="text-yellow-600" size={64} />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                Finalizar Comissão Antecipadamente?
+              </h2>
+              <p className="text-gray-600">
+                Você está prestes a finalizar a comissão sem votar em todos os ministérios
+              </p>
+            </div>
+
+            {/* Estatísticas */}
+            <div className="bg-gray-50 rounded-lg p-6 mb-6">
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="text-center p-4 bg-green-100 rounded-lg">
+                  <p className="text-sm text-green-700 mb-1">Finalizados</p>
+                  <p className="text-3xl font-bold text-green-600">{ministeriosFinalizados}</p>
+                </div>
+                <div className="text-center p-4 bg-yellow-100 rounded-lg">
+                  <p className="text-sm text-yellow-700 mb-1">Pendentes</p>
+                  <p className="text-3xl font-bold text-yellow-600">
+                    {totalMinisterios - ministeriosFinalizados}
+                  </p>
+                </div>
+              </div>
+
+              {ministeriosPendentes.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-sm font-semibold text-gray-700 mb-2">
+                    Ministérios Pendentes:
+                  </p>
+                  <div className="max-h-40 overflow-y-auto space-y-1">
+                    {ministeriosPendentes.map(m => (
+                      <div key={m.id} className="text-sm text-gray-600 bg-white p-2 rounded">
+                        • {m.nome}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Aviso */}
+            <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6">
+              <p className="text-sm text-yellow-800">
+                <span className="font-bold">Atenção:</span> Os ministérios pendentes precisarão ser
+                votados em uma nova comissão. Você pode configurar uma nova comissão apenas com os
+                ministérios faltantes.
+              </p>
+            </div>
+
+            {/* Botões */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowModalFinalizacao(false)}
+                className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition"
+              >
+                Continuar Votando
+              </button>
+              <button
+                onClick={handleConfirmarFinalizacao}
+                className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition shadow-md hover:shadow-lg"
+              >
+                Sim, Finalizar Comissão
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Estilos */}
+      <style>{`
+        @keyframes scaleIn {
+          from {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        .animate-scaleIn {
+          animation: scaleIn 0.2s ease-out;
+        }
+      `}</style>
+    </>
   );
 };
 

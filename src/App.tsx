@@ -11,11 +11,14 @@ import Relatorios from './pages/Relatorios';
 import ComponenteExplicacao from './components/ComponenteExplicacao';
 import FormularioIndicacao from './components/FormularioIndicacao';
 import TelaPrincipalVotacao from './components/TelaPrincipalVotacao';
+import ConfiguracaoComissao from './components/ConfiguracaoComissao';
+import BotaoDoacao from './components/BotaoDoacao';
 
 function App() {
   return (
     <VotacaoProvider>
       <Router>
+        <BotaoDoacao />
         <Routes>
           {/* Rotas com Layout Antigo (páginas informativas) */}
           <Route path="/" element={<Layout />}>
@@ -33,6 +36,7 @@ function App() {
 
           {/* Rotas sem Layout (tela cheia para etapas) */}
           <Route path="votacao">
+            <Route path="configuracao" element={<ConfiguracaoComissao />} />
             <Route path="explicacao" element={<ComponenteExplicacao tempoLeitura={120} autoAvancar={false} />} />
             <Route path="indicacao" element={<FormularioIndicacao />} />
             <Route path="votando" element={<TelaPrincipalVotacao />} />

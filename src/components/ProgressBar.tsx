@@ -2,7 +2,7 @@ import { Clock, CheckCircle2, TrendingUp } from 'lucide-react';
 import { useVotacao } from '../contexts/VotacaoContext';
 
 const ProgressBar = () => {
-  const { progressoGeral, ministerioAtual, ministerios, resultados, tempoEstimado } = useVotacao();
+  const { progressoGeral, ministerioAtual, ministeriosDisponiveis, resultados, tempoEstimado } = useVotacao();
 
   // Formata tempo em segundos para formato legível
   const formatarTempo = (segundos: number) => {
@@ -18,7 +18,7 @@ const ProgressBar = () => {
   };
 
   const ministeriosFinalizados = resultados.length;
-  const ministeriosTotal = ministerios.length;
+  const ministeriosTotal = ministeriosDisponiveis.length;
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
