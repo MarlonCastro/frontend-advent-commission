@@ -53,6 +53,7 @@ interface VotacaoContextData {
   ministeriosDisponiveis: Ministerio[];
   preCadastros: PreCadastroMinisterio[];
   configuracoesVagas: ConfiguracaoVagas[];
+  inicioComissao: number | null;
 
   // Funções
   selecionarMinisterio: (id: string) => void;
@@ -85,6 +86,9 @@ interface VotacaoContextData {
   // Funções de Configuração de Vagas
   setNumeroVagas: (ministerioId: string, numeroVagas: number) => void;
   getNumeroVagas: (ministerioId: string) => number;
+
+  // Função de Controle da Comissão
+  iniciarCronometroComissao: () => void;
 }
 
 const VotacaoContext = createContext<VotacaoContextData | undefined>(undefined);
@@ -107,6 +111,7 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
   const [departamentosPersonalizados, setDepartamentosPersonalizados] = useLocalStorage<Ministerio[]>('departamentosPersonalizados', []);
   const [preCadastros, setPreCadastros] = useLocalStorage<PreCadastroMinisterio[]>('preCadastros', []);
   const [configuracoesVagas, setConfiguracoesVagas] = useLocalStorage<ConfiguracaoVagas[]>('configuracoesVagas', []);
+  const [inicioComissao, setInicioComissao] = useLocalStorage<number | null>('inicioComissao', null);
 
   // Estado derivado - Ministérios disponíveis (padrão + personalizados)
   const todosMinisterios = [...ministerios, ...departamentosPersonalizados];
@@ -266,6 +271,7 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
       setDepartamentosPersonalizados([]);
       setPreCadastros([]);
       setConfiguracoesVagas([]);
+      setInicioComissao(null);
     }
   };
 
@@ -423,7 +429,7 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
     }
 
     if (ministerioId === 'diaconos' || ministerioId === 'diaconisas') {
-      return configuracao?.numeroVagas || 1; // Padrão 1 (Primeiro Diácono/Diaconisa)
+      return configuracao?.numeroVagas || 15; // Padrão 15
     }
 
     if (ministerioId === 'anciao') {
@@ -433,6 +439,15 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
     // Para outros ministérios, usar o número de cargos definido
     const ministerio = todosMinisterios.find(m => m.id === ministerioId);
     return ministerio?.cargos.length || 2;
+  };
+
+  // ========== Funções de Controle da Comissão ==========
+
+  // Função: Iniciar Cronômetro da Comissão
+  const iniciarCronometroComissao = () => {
+    if (!inicioComissao) {
+      setInicioComissao(Date.now());
+    }
   };
 
   const value: VotacaoContextData = {
@@ -449,6 +464,7 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
     ministeriosDisponiveis,
     preCadastros,
     configuracoesVagas,
+    inicioComissao,
     selecionarMinisterio,
     proximaEtapa,
     voltarEtapa,
@@ -473,6 +489,7 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
     getSugestoesMinisterio,
     setNumeroVagas,
     getNumeroVagas,
+    iniciarCronometroComissao,
   };
 
   return (

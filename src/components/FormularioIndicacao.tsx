@@ -107,6 +107,17 @@ const FormularioIndicacaoV2 = () => {
       setErro('Adicione pelo menos 1 candidato antes de prosseguir');
       return;
     }
+
+    // Alerta se número de candidatos diferente do número de vagas
+    if (candidatos.length !== numeroVagas) {
+      const confirmar = window.confirm(
+        `Atenção!\n\nNúmero de candidatos (${candidatos.length}) é diferente do número de vagas (${numeroVagas}).\n\nDeseja continuar mesmo assim?`
+      );
+      if (!confirmar) {
+        return;
+      }
+    }
+
     proximaEtapa();
     navigate('/votacao/votando');
   };
@@ -160,8 +171,7 @@ const FormularioIndicacaoV2 = () => {
               </button>
               <button
                 onClick={handleProximaEtapa}
-                disabled={candidatos.length === 0}
-                className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition shadow-md hover:shadow-lg"
+                className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition shadow-md hover:shadow-lg"
               >
                 Iniciar Votação
                 <ArrowRight size={20} />

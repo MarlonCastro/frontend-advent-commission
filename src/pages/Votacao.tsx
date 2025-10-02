@@ -4,12 +4,13 @@ import ProgressBar from '../components/ProgressBar';
 import MinisterioSelector from '../components/MinisterioSelector';
 import EtapaIndicador from '../components/EtapaIndicador';
 import { useEffect, useState } from 'react';
-import { AlertTriangle, FileText, Settings } from 'lucide-react';
+import { AlertTriangle, FileText, Settings, Trash2, AlertOctagon } from 'lucide-react';
 
 const Votacao = () => {
   const { nomeIgreja, ministeriosSelecionados, ministeriosDisponiveis, resultados } = useVotacao();
   const navigate = useNavigate();
   const [showModalFinalizacao, setShowModalFinalizacao] = useState(false);
+  const [showModalLimparDados, setShowModalLimparDados] = useState(false);
 
   // Verificar se a comissão está configurada
   useEffect(() => {
@@ -37,6 +38,15 @@ const Votacao = () => {
     navigate('/relatorios');
   };
 
+  const handleLimparDados = () => {
+    // Limpar todo o localStorage
+    localStorage.clear();
+    setShowModalLimparDados(false);
+    // Recarregar página para resetar todo o estado
+    window.location.href = '#/';
+    window.location.reload();
+  };
+
   const ministeriosPendentes = ministeriosDisponiveis.filter(
     m => !resultados.some(r => r.ministerioId === m.id)
   );
@@ -54,6 +64,16 @@ const Votacao = () => {
 
           {/* Botões de Ação */}
           <div className="flex items-center gap-3">
+            {/* Botão Limpar Dados */}
+            <button
+              onClick={() => setShowModalLimparDados(true)}
+              className="flex items-center gap-2 px-4 py-3 bg-red-100 hover:bg-red-200 text-red-700 font-semibold rounded-lg transition shadow-md hover:shadow-lg"
+              title="Limpar Todos os Dados"
+            >
+              <Trash2 size={20} />
+              <span className="hidden sm:inline">Limpar</span>
+            </button>
+
             {/* Botão Reconfigurar Comissão */}
             <button
               onClick={() => navigate('/votacao/configuracao')}
@@ -178,6 +198,66 @@ const Votacao = () => {
           animation: scaleIn 0.2s ease-out;
         }
       `}</style>
+
+      {/* Modal de Confirmação de Limpeza de Dados */}
+      {showModalLimparDados && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 animate-scaleIn">
+            <div className="text-center mb-6">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                  <AlertOctagon className="text-red-600" size={40} />
+                </div>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                Limpar Todos os Dados?
+              </h2>
+              <p className="text-gray-600">
+                Esta ação não pode ser desfeita!
+              </p>
+            </div>
+
+            {/* Lista do que será apagado */}
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg mb-6">
+              <p className="font-semibold text-red-900 mb-2 text-sm">
+                Os seguintes dados serão permanentemente apagados:
+              </p>
+              <ul className="space-y-1 text-sm text-red-800">
+                <li>• Configuração da comissão (nome da igreja e ministérios selecionados)</li>
+                <li>• Todos os pré-cadastros de liderança e interessados</li>
+                <li>• Departamentos personalizados criados</li>
+                <li>• Todas as votações em andamento</li>
+                <li>• Histórico completo de resultados</li>
+                <li>• Configurações de vagas personalizadas</li>
+              </ul>
+            </div>
+
+            {/* Aviso */}
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+              <p className="text-sm text-yellow-800">
+                <span className="font-bold">⚠️ Atenção:</span> Você será redirecionado para a página inicial
+                e precisará configurar tudo novamente do zero.
+              </p>
+            </div>
+
+            {/* Botões */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowModalLimparDados(false)}
+                className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleLimparDados}
+                className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition shadow-md hover:shadow-lg"
+              >
+                Sim, Limpar Tudo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

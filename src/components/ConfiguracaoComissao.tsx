@@ -22,12 +22,15 @@ const ConfiguracaoComissao = () => {
     nomeIgreja,
     ministeriosSelecionados,
     departamentosPersonalizados,
+    resultados,
+    ministerioAtual,
     setNomeIgreja,
     toggleMinisterioSelecionado,
     adicionarDepartamentoPersonalizado,
     removerDepartamentoPersonalizado,
     selecionarTodosMinisterios,
     desselecionarTodosMinisterios,
+    iniciarCronometroComissao,
   } = useVotacao();
 
   const navigate = useNavigate();
@@ -82,8 +85,15 @@ const ConfiguracaoComissao = () => {
       return;
     }
 
+    // Iniciar cronômetro geral da comissão
+    iniciarCronometroComissao();
+
     navigate('/votacao');
   };
+
+  // Verifica se já iniciou a comissão (tem resultados ou ministério em votação)
+  const comissaoEmAndamento = resultados.length > 0 || ministerioAtual !== null;
+  const textoBotao = comissaoEmAndamento ? 'Retomar Comissão' : 'Iniciar Comissão';
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -397,9 +407,12 @@ const ConfiguracaoComissao = () => {
               <button
                 onClick={handleIniciarComissao}
                 disabled={!nomeIgreja.trim() || ministeriosSelecionados.length === 0}
-                className="w-full flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-lg rounded-lg transition shadow-lg hover:shadow-xl"
+                className={`w-full flex items-center justify-center gap-2 px-8 py-4 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-lg rounded-lg transition shadow-lg hover:shadow-xl ${comissaoEmAndamento
+                  ? 'bg-green-600 hover:bg-green-700'
+                  : 'bg-blue-600 hover:bg-blue-700'
+                  }`}
               >
-                Iniciar Comissão
+                {textoBotao}
                 <ArrowRight size={24} />
               </button>
               {(!nomeIgreja.trim() || ministeriosSelecionados.length === 0) && (
@@ -411,14 +424,36 @@ const ConfiguracaoComissao = () => {
           </>
         ) : (
           /* Aba de Pré-Cadastro */
-          <div className="mb-6">
-            <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-lg mb-6">
-              <p className="text-sm text-blue-800">
-                <span className="font-semibold">Dica:</span> Preencha a liderança atual e possíveis interessados para cada ministério. Estes nomes aparecerão automaticamente como sugestões durante a votação.
-              </p>
+          <>
+            <div className="mb-6">
+              <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-lg mb-6">
+                <p className="text-sm text-blue-800">
+                  <span className="font-semibold">Dica:</span> Preencha a liderança atual e possíveis interessados para cada ministério. Estes nomes aparecerão automaticamente como sugestões durante a votação.
+                </p>
+              </div>
+              <PreCadastroMinisterios />
             </div>
-            <PreCadastroMinisterios />
-          </div>
+
+            {/* Botão de Ação - Aba Pré-Cadastro */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <button
+                onClick={handleIniciarComissao}
+                disabled={!nomeIgreja.trim() || ministeriosSelecionados.length === 0}
+                className={`w-full flex items-center justify-center gap-2 px-8 py-4 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-lg rounded-lg transition shadow-lg hover:shadow-xl ${comissaoEmAndamento
+                  ? 'bg-green-600 hover:bg-green-700'
+                  : 'bg-blue-600 hover:bg-blue-700'
+                  }`}
+              >
+                {textoBotao}
+                <ArrowRight size={24} />
+              </button>
+              {(!nomeIgreja.trim() || ministeriosSelecionados.length === 0) && (
+                <p className="text-center text-sm text-gray-500 mt-3">
+                  Preencha o nome da igreja e selecione pelo menos um ministério para continuar
+                </p>
+              )}
+            </div>
+          </>
         )}
       </div>
 

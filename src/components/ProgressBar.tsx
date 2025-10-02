@@ -1,8 +1,26 @@
-import { Clock, CheckCircle2, TrendingUp } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Clock, CheckCircle2, TrendingUp, Timer } from 'lucide-react';
 import { useVotacao } from '../contexts/VotacaoContext';
 
 const ProgressBar = () => {
-  const { progressoGeral, ministerioAtual, ministeriosDisponiveis, resultados, tempoEstimado } = useVotacao();
+  const { progressoGeral, ministerioAtual, ministeriosDisponiveis, resultados, tempoEstimado, inicioComissao } = useVotacao();
+  const [tempoDecorrido, setTempoDecorrido] = useState(0);
+
+  // Atualizar cronômetro a cada segundo
+  useEffect(() => {
+    if (!inicioComissao) {
+      setTempoDecorrido(0);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      const agora = Date.now();
+      const segundos = Math.floor((agora - inicioComissao) / 1000);
+      setTempoDecorrido(segundos);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [inicioComissao]);
 
   // Formata tempo em segundos para formato legível
   const formatarTempo = (segundos: number) => {
@@ -17,6 +35,18 @@ const ProgressBar = () => {
     return `${minutos} minutos`;
   };
 
+  // Formata cronômetro (HH:MM:SS)
+  const formatarCronometro = (segundos: number) => {
+    const horas = Math.floor(segundos / 3600);
+    const minutos = Math.floor((segundos % 3600) / 60);
+    const secs = segundos % 60;
+
+    if (horas > 0) {
+      return `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+    return `${minutos.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
   const ministeriosFinalizados = resultados.length;
   const ministeriosTotal = ministeriosDisponiveis.length;
 
@@ -28,9 +58,23 @@ const ProgressBar = () => {
           <TrendingUp className="text-blue-600" size={24} />
           <h2 className="text-xl font-bold text-gray-800">Progresso Geral</h2>
         </div>
-        <div className="text-right">
-          <span className="text-3xl font-bold text-blue-600">{progressoGeral}%</span>
-          <p className="text-xs text-gray-500">Concluído</p>
+        <div className="flex items-center gap-6">
+          {/* Cronômetro Geral */}
+          {inicioComissao && (
+            <div className="text-right bg-blue-50 px-4 py-2 rounded-lg border border-blue-200">
+              <div className="flex items-center gap-2">
+                <Timer className="text-blue-600" size={18} />
+                <span className="text-lg font-mono font-bold text-blue-600">
+                  {formatarCronometro(tempoDecorrido)}
+                </span>
+              </div>
+              <p className="text-xs text-blue-700">Tempo Total</p>
+            </div>
+          )}
+          <div className="text-right">
+            <span className="text-3xl font-bold text-blue-600">{progressoGeral}%</span>
+            <p className="text-xs text-gray-500">Concluído</p>
+          </div>
         </div>
       </div>
 
