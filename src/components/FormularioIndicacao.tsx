@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { UserPlus, AlertCircle, CheckCircle, ArrowRight, ArrowLeft, Users, Crown, UserCheck, History } from 'lucide-react';
+import { UserPlus, AlertCircle, CheckCircle, ArrowRight, ArrowLeft, Users, Crown, UserCheck, History, XCircle } from 'lucide-react';
 import { useVotacao } from '../contexts/VotacaoContext';
 import ListaCandidatos from './ListaCandidatos';
 import { useNavigate } from 'react-router-dom';
@@ -15,12 +15,14 @@ const FormularioIndicacaoV2 = () => {
     voltarEtapa,
     getPreCadastro,
     resultados,
-    getNumeroVagas
+    getNumeroVagas,
+    encerrarSemCandidatos
   } = useVotacao();
 
   const navigate = useNavigate();
   const [nomeInput, setNomeInput] = useState('');
   const [erro, setErro] = useState('');
+  const [showModalEncerrarSemCandidatos, setShowModalEncerrarSemCandidatos] = useState(false);
 
   // Separar sugestões por categoria
   const [liderancaAtual, setLiderancaAtual] = useState<{ diretor: string; diretorAssociado?: string }>({ diretor: '' });
@@ -122,9 +124,19 @@ const FormularioIndicacaoV2 = () => {
     navigate('/votacao/votando');
   };
 
+  const handleEncerrarSemCandidatos = () => {
+    setShowModalEncerrarSemCandidatos(true);
+  };
+
+  const handleConfirmarEncerrarSemCandidatos = () => {
+    encerrarSemCandidatos();
+    setShowModalEncerrarSemCandidatos(false);
+    navigate('/votacao');
+  };
+
   const handleVoltarEtapa = () => {
     voltarEtapa();
-    navigate('/votacao/explicacao');
+    navigate('/votacao');
   };
 
   if (!ministerioAtual || etapaAtual !== 2) {
@@ -149,19 +161,20 @@ const FormularioIndicacaoV2 = () => {
     interessadosDisponiveis.length > 0 || historicoDisponivel.length > 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 pb-24 md:pb-6">
       <div className="max-w-7xl mx-auto">
         {/* Cabeçalho */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center justify-between">
+        <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-center gap-3">
-              <UserPlus className="text-blue-600" size={32} />
+              <UserPlus className="text-blue-600" size={28} md-size={32} />
               <div>
-                <h1 className="text-2xl font-bold text-gray-800">Indicação de Candidatos</h1>
-                <p className="text-gray-600">{ministerioAtual.nome}</p>
+                <h1 className="text-xl md:text-2xl font-bold text-gray-800">Indicação de Candidatos</h1>
+                <p className="text-sm md:text-base text-gray-600">{ministerioAtual.nome}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            {/* Botões apenas no desktop */}
+            <div className="hidden md:flex items-center gap-3">
               <button
                 onClick={handleVoltarEtapa}
                 className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition"
@@ -177,6 +190,28 @@ const FormularioIndicacaoV2 = () => {
                 <ArrowRight size={20} />
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* Botão de Encerrar Sem Candidatos */}
+        <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="text-yellow-600 flex-shrink-0 mt-0.5" size={20} />
+              <div>
+                <p className="font-semibold text-yellow-900 text-sm md:text-base">Nenhum candidato disponível?</p>
+                <p className="text-xs md:text-sm text-yellow-700 mt-1">
+                  Se não houver nomes para indicar neste ministério, você pode encerrá-lo sem candidatos e continuar com os demais.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleEncerrarSemCandidatos}
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white font-semibold rounded-lg transition whitespace-nowrap text-sm md:text-base"
+            >
+              <XCircle size={18} />
+              Encerrar sem candidatos
+            </button>
           </div>
         </div>
 
@@ -396,7 +431,66 @@ const FormularioIndicacaoV2 = () => {
             </div>
           </div>
         </div>
+
+        {/* Footer Mobile - Botões de Ação */}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 p-4 shadow-lg z-30">
+          <div className="flex gap-3">
+            <button
+              onClick={handleVoltarEtapa}
+              className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition flex-1"
+            >
+              <ArrowLeft size={20} />
+              Voltar
+            </button>
+            <button
+              onClick={handleProximaEtapa}
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition shadow-md hover:shadow-lg flex-1"
+            >
+              Iniciar Votação
+              <ArrowRight size={20} />
+            </button>
+          </div>
+        </div>
+
       </div>
+
+      {/* Modal de Confirmação - Encerrar Sem Candidatos */}
+      {showModalEncerrarSemCandidatos && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setShowModalEncerrarSemCandidatos(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 animate-scaleIn">
+            <div className="text-center mb-6">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center">
+                  <XCircle className="text-yellow-600" size={40} />
+                </div>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                Encerrar sem candidatos?
+              </h2>
+              <p className="text-gray-600 leading-relaxed">
+                O ministério <span className="font-semibold text-yellow-700">{ministerioAtual.nome}</span> será marcado como "Sem Candidatos".
+                Você poderá reabrir a indicação mais tarde se necessário.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowModalEncerrarSemCandidatos(false)}
+                className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleConfirmarEncerrarSemCandidatos}
+                className="flex-1 px-4 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-semibold rounded-lg transition shadow-md hover:shadow-lg"
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Estilos de animação */}
       <style>{`
@@ -408,6 +502,21 @@ const FormularioIndicacaoV2 = () => {
 
         .animate-shake {
           animation: shake 0.3s ease-in-out;
+        }
+
+        @keyframes scaleIn {
+          from {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        .animate-scaleIn {
+          animation: scaleIn 0.2s ease-out;
         }
       `}</style>
     </div>

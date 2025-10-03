@@ -1,13 +1,21 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Vote, Presentation, FileText, Church, X } from 'lucide-react';
+import { Vote, Presentation, FileText, Church, X, ChevronLeft, ChevronRight, HelpCircle } from 'lucide-react';
 
 interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
   isMobile?: boolean;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
-const Sidebar = ({ isOpen = true, onClose, isMobile = false }: SidebarProps) => {
+const Sidebar = ({
+  isOpen = true,
+  onClose,
+  isMobile = false,
+  isCollapsed = false,
+  onToggleCollapse
+}: SidebarProps) => {
   const location = useLocation();
 
   const menuItems = [
@@ -29,6 +37,12 @@ const Sidebar = ({ isOpen = true, onClose, isMobile = false }: SidebarProps) => 
       icon: FileText,
       description: 'Gerar relatórios PDF',
     },
+    {
+      path: '/ajuda',
+      label: 'Ajuda',
+      icon: HelpCircle,
+      description: 'Tutorial e suporte',
+    },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -36,14 +50,16 @@ const Sidebar = ({ isOpen = true, onClose, isMobile = false }: SidebarProps) => 
   const sidebarContent = (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-900 to-blue-700">
+      <div className={`border-b border-gray-200 bg-gradient-to-r from-blue-900 to-blue-700 ${isCollapsed && !isMobile ? 'p-3' : 'p-6'}`}>
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Church className="text-white" size={32} />
-            <div>
-              <h1 className="text-lg font-bold text-white">Sistema de Votação</h1>
-              <p className="text-xs text-blue-200">IASD</p>
-            </div>
+          <div className={`flex items-center ${isCollapsed && !isMobile ? 'justify-center w-full' : 'space-x-3'}`}>
+            <Church className="text-white" size={isCollapsed && !isMobile ? 28 : 32} />
+            {(!isCollapsed || isMobile) && (
+              <div>
+                <h1 className="text-lg font-bold text-white">Sistema de Votação</h1>
+                <p className="text-xs text-blue-200">IASD</p>
+              </div>
+            )}
           </div>
           {isMobile && onClose && (
             <button
@@ -53,11 +69,20 @@ const Sidebar = ({ isOpen = true, onClose, isMobile = false }: SidebarProps) => 
               <X size={24} />
             </button>
           )}
+          {!isMobile && onToggleCollapse && (
+            <button
+              onClick={onToggleCollapse}
+              className="text-white hover:bg-blue-800 p-2 rounded-lg transition"
+              title={isCollapsed ? 'Expandir menu' : 'Recolher menu'}
+            >
+              {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+            </button>
+          )}
         </div>
       </div>
 
       {/* Menu Items */}
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+      <nav className={`flex-1 p-4 space-y-2 overflow-y-auto ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
         {menuItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
@@ -67,8 +92,13 @@ const Sidebar = ({ isOpen = true, onClose, isMobile = false }: SidebarProps) => 
               key={item.path}
               to={item.path}
               onClick={isMobile ? onClose : undefined}
+              title={isCollapsed && !isMobile ? item.label : undefined}
               className={`
-                flex items-center space-x-3 px-4 py-3 rounded-lg transition-all
+                flex items-center rounded-lg transition-all
+                ${isCollapsed && !isMobile
+                  ? 'justify-center p-3'
+                  : 'space-x-3 px-4 py-3'
+                }
                 ${active
                   ? 'bg-blue-600 text-white shadow-md'
                   : 'text-gray-700 hover:bg-gray-100'
@@ -76,27 +106,31 @@ const Sidebar = ({ isOpen = true, onClose, isMobile = false }: SidebarProps) => 
               `}
             >
               <Icon size={22} className="flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm">{item.label}</p>
-                <p className={`text-xs ${active ? 'text-blue-100' : 'text-gray-500'}`}>
-                  {item.description}
-                </p>
-              </div>
+              {(!isCollapsed || isMobile) && (
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm">{item.label}</p>
+                  <p className={`text-xs ${active ? 'text-blue-100' : 'text-gray-500'}`}>
+                    {item.description}
+                  </p>
+                </div>
+              )}
             </Link>
           );
         })}
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-200 bg-gray-50">
-        <Link
-          to="/ministerios"
-          onClick={isMobile ? onClose : undefined}
-          className="block text-center text-sm text-blue-600 hover:text-blue-800 font-medium transition"
-        >
-          Ver Todos os Ministérios
-        </Link>
-      </div>
+      {(!isCollapsed || isMobile) && (
+        <div className="p-4 border-t border-gray-200 bg-gray-50">
+          <Link
+            to="/ministerios"
+            onClick={isMobile ? onClose : undefined}
+            className="block text-center text-sm text-blue-600 hover:text-blue-800 font-medium transition"
+          >
+            Ver Todos os Ministérios
+          </Link>
+        </div>
+      )}
     </div>
   );
 
@@ -128,7 +162,11 @@ const Sidebar = ({ isOpen = true, onClose, isMobile = false }: SidebarProps) => 
 
   // Desktop Sidebar
   return (
-    <aside className="hidden md:block w-80 bg-white border-r border-gray-200 h-screen sticky top-0 overflow-hidden">
+    <aside className={`
+      hidden md:block bg-white border-r border-gray-200 h-screen sticky top-0 overflow-hidden
+      transition-all duration-300 ease-in-out
+      ${isCollapsed ? 'w-20' : 'w-80'}
+    `}>
       {sidebarContent}
     </aside>
   );

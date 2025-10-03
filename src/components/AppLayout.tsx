@@ -5,15 +5,20 @@ import Sidebar from './Sidebar';
 
 const AppLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
       {/* Sidebar Desktop */}
-      <Sidebar />
+      <Sidebar isCollapsed={isCollapsed} onToggleCollapse={toggleCollapse} />
 
       {/* Sidebar Mobile (Drawer) */}
       <Sidebar
@@ -46,7 +51,7 @@ const AppLayout = () => {
         {/* Footer */}
         <footer className="bg-white border-t border-gray-200 py-4 px-6">
           <p className="text-sm text-center text-gray-600">
-            © {new Date().getFullYear()} Igreja Adventista do Sétimo Dia - Sistema de Votação
+            © 2025 - Marlon Castro - Sistema de votação - Dúvidas? marloncastro78@gmail.com
           </p>
         </footer>
       </div>

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Church, Vote, Users, FileText } from 'lucide-react';
+import { Church, Vote, Users, FileText, HelpCircle } from 'lucide-react';
 
 const Header = () => {
   return (
@@ -36,6 +36,13 @@ const Header = () => {
               <FileText size={20} />
               <span>Relatórios</span>
             </Link>
+            <Link
+              to="/ajuda"
+              className="flex items-center space-x-2 hover:text-blue-200 transition"
+            >
+              <HelpCircle size={20} />
+              <span>Ajuda</span>
+            </Link>
           </nav>
         </div>
 
@@ -61,6 +68,13 @@ const Header = () => {
           >
             <FileText size={20} />
             <span className="text-xs">Relatórios</span>
+          </Link>
+          <Link
+            to="/ajuda"
+            className="flex flex-col items-center space-y-1 hover:text-blue-200 transition"
+          >
+            <HelpCircle size={20} />
+            <span className="text-xs">Ajuda</span>
           </Link>
         </nav>
       </div>

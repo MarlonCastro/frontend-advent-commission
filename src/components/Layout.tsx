@@ -10,10 +10,7 @@ const Layout = () => {
       </main>
       <footer className="bg-gray-800 text-white text-center py-6 mt-12">
         <p className="text-sm">
-          © {new Date().getFullYear()} Igreja Adventista do Sétimo Dia - Sistema de Votação de Ministérios
-        </p>
-        <p className="text-xs text-gray-400 mt-2">
-          Desenvolvido para auxiliar no processo de comissão de nomeações
+          © 2025 - Marlon Castro - Sistema de votação - Dúvidas? marloncastro78@gmail.com
         </p>
       </footer>
     </div>

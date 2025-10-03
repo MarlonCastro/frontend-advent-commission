@@ -3,6 +3,7 @@ import { useVotacao } from '../contexts/VotacaoContext';
 import ProgressBar from '../components/ProgressBar';
 import MinisterioSelector from '../components/MinisterioSelector';
 import EtapaIndicador from '../components/EtapaIndicador';
+import ComponenteExplicacao from '../components/ComponenteExplicacao';
 import { useEffect, useState } from 'react';
 import { AlertTriangle, FileText, Settings, Trash2, AlertOctagon } from 'lucide-react';
 
@@ -25,6 +26,9 @@ const Votacao = () => {
   const totalMinisterios = ministeriosDisponiveis.length;
   const todosFinalizados = ministeriosFinalizados === totalMinisterios && totalMinisterios > 0;
 
+  // Texto do botão baseado no estado
+  const textoBotaoFinalizar = todosFinalizados ? 'Ver Relatórios' : 'Finalizar Comissão';
+
   const handleFinalizarComissao = () => {
     if (todosFinalizados) {
       navigate('/relatorios');
@@ -35,6 +39,7 @@ const Votacao = () => {
 
   const handleConfirmarFinalizacao = () => {
     setShowModalFinalizacao(false);
+    // Não limpar o cronômetro, apenas ir para relatórios
     navigate('/relatorios');
   };
 
@@ -54,16 +59,16 @@ const Votacao = () => {
   return (
     <>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Sistema de Votação</h1>
-            <p className="text-gray-600">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Sistema de Votação</h1>
+            <p className="text-sm md:text-base text-gray-600">
               Gerencie o processo de votação para os ministérios da igreja
             </p>
           </div>
 
-          {/* Botões de Ação */}
-          <div className="flex items-center gap-3">
+          {/* Botões de Ação - Desktop */}
+          <div className="hidden md:flex items-center gap-3">
             {/* Botão Limpar Dados */}
             <button
               onClick={() => setShowModalLimparDados(true)}
@@ -71,7 +76,7 @@ const Votacao = () => {
               title="Limpar Todos os Dados"
             >
               <Trash2 size={20} />
-              <span className="hidden sm:inline">Limpar</span>
+              <span className="hidden lg:inline">Limpar</span>
             </button>
 
             {/* Botão Reconfigurar Comissão */}
@@ -81,10 +86,10 @@ const Votacao = () => {
               title="Reconfigurar Comissão"
             >
               <Settings size={20} />
-              <span className="hidden sm:inline">Configurar</span>
+              <span className="hidden lg:inline">Configurar</span>
             </button>
 
-            {/* Botão Finalizar Comissão */}
+            {/* Botão Finalizar Comissão / Ver Relatórios */}
             <button
               onClick={handleFinalizarComissao}
               disabled={ministeriosFinalizados === 0}
@@ -96,7 +101,40 @@ const Votacao = () => {
                 }`}
             >
               <FileText size={20} />
-              {todosFinalizados ? 'Ver Relatórios' : 'Finalizar Comissão'}
+              {textoBotaoFinalizar}
+            </button>
+          </div>
+
+          {/* Botões de Ação - Mobile */}
+          <div className="flex md:hidden items-center gap-2">
+            <button
+              onClick={() => setShowModalLimparDados(true)}
+              className="flex items-center justify-center gap-1 px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 font-semibold rounded-lg transition text-sm"
+              title="Limpar Dados"
+            >
+              <Trash2 size={16} />
+            </button>
+
+            <button
+              onClick={() => navigate('/votacao/configuracao')}
+              className="flex items-center justify-center gap-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition text-sm"
+              title="Configurar"
+            >
+              <Settings size={16} />
+            </button>
+
+            <button
+              onClick={handleFinalizarComissao}
+              disabled={ministeriosFinalizados === 0}
+              className={`flex items-center justify-center gap-1 px-4 py-2 font-semibold rounded-lg transition text-sm flex-1 ${todosFinalizados
+                ? 'bg-green-600 hover:bg-green-700 text-white'
+                : ministeriosFinalizados > 0
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                  : 'bg-gray-300 cursor-not-allowed text-gray-500'
+                }`}
+            >
+              <FileText size={16} />
+              {todosFinalizados ? 'Relatórios' : 'Finalizar'}
             </button>
           </div>
         </div>
@@ -106,10 +144,14 @@ const Votacao = () => {
         <EtapaIndicador />
       </div>
 
+      {/* Modal de Explicação (abre automaticamente ao selecionar ministério) */}
+      <ComponenteExplicacao tempoLeitura={120} autoAvancar={false} />
+
       {/* Modal de Confirmação de Finalização */}
       {showModalFinalizacao && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 animate-scaleIn">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setShowModalFinalizacao(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 animate-scaleIn">
             <div className="text-center mb-6">
               <div className="flex justify-center mb-4">
                 <AlertTriangle className="text-yellow-600" size={64} />
@@ -201,8 +243,9 @@ const Votacao = () => {
 
       {/* Modal de Confirmação de Limpeza de Dados */}
       {showModalLimparDados && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 animate-scaleIn">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setShowModalLimparDados(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 animate-scaleIn">
             <div className="text-center mb-6">
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">

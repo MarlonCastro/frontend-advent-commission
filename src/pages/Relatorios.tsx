@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trophy, Users, Download, FileText, Target } from 'lucide-react';
+import { Trophy, Users, Download, FileText, Target, XCircle } from 'lucide-react';
 import { useVotacao } from '../contexts/VotacaoContext';
 import { gerarRelatorioCompleto, gerarRelatorioObjetivo } from '../utils/gerarPDF';
 
@@ -42,8 +42,9 @@ const Relatorios = () => {
 
       {/* Modal de Escolha do Tipo de PDF */}
       {showEscolhaPDF && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full m-4 animate-scaleIn">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setShowEscolhaPDF(false)} />
+          <div className="relative bg-white rounded-xl shadow-2xl p-6 max-w-md w-full m-4 animate-scaleIn">
             <h3 className="text-xl font-bold text-gray-800 mb-4">Escolha o Tipo de Relatório</h3>
 
             <div className="space-y-3 mb-6">
@@ -124,6 +125,47 @@ const Relatorios = () => {
 
           {/* Lista de Resultados */}
           {resultados.map((resultado, index) => {
+            // Tratamento especial para ministérios sem candidatos
+            if (resultado.semCandidatos) {
+              return (
+                <div key={index} className="bg-orange-50 border-2 border-orange-300 rounded-xl p-6 shadow-md">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                        <XCircle className="text-orange-600" size={28} />
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-orange-900 mb-2">
+                        {resultado.ministerioNome}
+                      </h3>
+                      <p className="text-orange-700 mb-3">
+                        Este ministério foi encerrado <span className="font-semibold">sem candidatos indicados</span>.
+                      </p>
+                      <div className="bg-white border border-orange-200 rounded-lg p-3">
+                        <p className="text-sm text-orange-800">
+                          <span className="font-semibold">Observação:</span> A indicação pode ser reaberta através do seletor de ministérios na página principal.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Info Adicional */}
+                  <div className="mt-4 pt-4 border-t border-orange-200 text-sm text-orange-700">
+                    <span>
+                      Encerrado em {new Date(resultado.timestamp).toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </span>
+                  </div>
+                </div>
+              );
+            }
+
             const totalVotos = resultado.candidatos.reduce((acc, c) => acc + c.votos, 0);
             const candidatosOrdenados = [...resultado.candidatos].sort((a, b) => b.votos - a.votos);
 

@@ -87,38 +87,41 @@ const TelaPrincipalVotacaoV2 = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-gray-50 p-4 md:p-6 pb-24 md:pb-6">
         <div className="max-w-7xl mx-auto">
           {/* Cabeçalho */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <div className="flex items-center justify-between">
+          <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div className="flex items-center gap-3">
-                <Vote className="text-blue-600" size={32} />
+                <Vote className="text-blue-600" size={28} md-size={32} />
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-800">Votação em Andamento</h1>
-                  <p className="text-gray-600">{ministerioAtual.nome}</p>
+                  <h1 className="text-xl md:text-2xl font-bold text-gray-800">Votação em Andamento</h1>
+                  <p className="text-sm md:text-base text-gray-600">{ministerioAtual.nome}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between md:justify-end gap-4">
                 <div className="text-right">
-                  <p className="text-sm text-gray-600">Total de Votos</p>
-                  <p className="text-3xl font-bold text-blue-600">{totalVotos}</p>
+                  <p className="text-xs md:text-sm text-gray-600">Total de Votos</p>
+                  <p className="text-2xl md:text-3xl font-bold text-blue-600">{totalVotos}</p>
                 </div>
-                <button
-                  onClick={handleVoltarEtapa}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition"
-                >
-                  <ArrowLeft size={20} />
-                  Voltar
-                </button>
-                <button
-                  onClick={handleFinalizarVotacao}
-                  disabled={totalVotos === 0}
-                  className="flex items-center gap-2 px-6 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-lg transition shadow-lg hover:shadow-xl"
-                >
-                  <CheckCircle size={20} />
-                  Finalizar Votação
-                </button>
+                {/* Botões apenas no desktop */}
+                <div className="hidden md:flex items-center gap-3">
+                  <button
+                    onClick={handleVoltarEtapa}
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition"
+                  >
+                    <ArrowLeft size={20} />
+                    Voltar
+                  </button>
+                  <button
+                    onClick={handleFinalizarVotacao}
+                    disabled={totalVotos === 0}
+                    className="flex items-center gap-2 px-6 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-lg transition shadow-lg hover:shadow-xl"
+                  >
+                    <CheckCircle size={20} />
+                    Finalizar Votação
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -190,6 +193,28 @@ const TelaPrincipalVotacaoV2 = () => {
             </div>
           </div>
         </div>
+
+        {/* Footer Mobile - Botões de Ação */}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 p-4 shadow-lg z-30">
+          <div className="flex gap-3">
+            <button
+              onClick={handleVoltarEtapa}
+              className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition flex-1"
+            >
+              <ArrowLeft size={20} />
+              Voltar
+            </button>
+            <button
+              onClick={handleFinalizarVotacao}
+              disabled={totalVotos === 0}
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-lg transition shadow-lg hover:shadow-xl flex-1"
+            >
+              <CheckCircle size={20} />
+              Finalizar
+            </button>
+          </div>
+        </div>
+
       </div>
 
       {/* Modal de Confirmação */}

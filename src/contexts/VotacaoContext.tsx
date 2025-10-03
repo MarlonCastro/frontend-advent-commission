@@ -20,6 +20,7 @@ interface ResultadoMinisterio {
   vencedor?: string;
   timestamp: number;
   tempoGasto: number; // em segundos
+  semCandidatos?: boolean; // true quando ministério foi encerrado sem candidatos
 }
 
 interface PreCadastroMinisterio {
@@ -66,6 +67,8 @@ interface VotacaoContextData {
   removerVoto: (candidatoId: string) => void;
   zerarVotosCandidato: (candidatoId: string) => void;
   finalizarMinisterio: () => void;
+  encerrarSemCandidatos: () => void;
+  reabrirIndicacao: (ministerioId: string) => void;
   resetarSistema: () => void;
 
   // Funções de Configuração
@@ -148,7 +151,7 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
 
   // Função: Selecionar Ministério
   const selecionarMinisterio = (id: string) => {
-    const ministerio = ministerios.find(m => m.id === id);
+    const ministerio = todosMinisterios.find(m => m.id === id);
     if (ministerio) {
       setMinisterioAtualId(id);
       setEtapaAtual(1);
@@ -250,12 +253,47 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
       vencedor: vencedor?.nome,
       timestamp: Date.now(),
       tempoGasto,
+      semCandidatos: false,
     };
 
     setResultados([...resultados, resultado]);
     setMinisterioAtualId(null);
     setEtapaAtual(1);
     setCandidatos([]);
+  };
+
+  // Função: Encerrar Ministério Sem Candidatos
+  const encerrarSemCandidatos = () => {
+    if (!ministerioAtual) return;
+
+    const tempoGasto = Math.round((Date.now() - inicioEtapa) / 1000);
+
+    const resultado: ResultadoMinisterio = {
+      ministerioId: ministerioAtual.id,
+      ministerioNome: ministerioAtual.nome,
+      cargoId: ministerioAtual.cargos[0]?.id || '',
+      cargoNome: ministerioAtual.cargos[0]?.nome || '',
+      candidatos: [],
+      vencedor: undefined,
+      timestamp: Date.now(),
+      tempoGasto,
+      semCandidatos: true,
+    };
+
+    setResultados([...resultados, resultado]);
+    setMinisterioAtualId(null);
+    setEtapaAtual(1);
+    setCandidatos([]);
+  };
+
+  // Função: Reabrir Indicação (remove resultado de ministério sem candidatos)
+  const reabrirIndicacao = (ministerioId: string) => {
+    // Remove o resultado do ministério para permitir nova indicação
+    const novosResultados = resultados.filter(r => r.ministerioId !== ministerioId);
+    setResultados(novosResultados);
+
+    // Seleciona o ministério novamente para reiniciar o processo
+    selecionarMinisterio(ministerioId);
   };
 
   // Função: Resetar Sistema
@@ -475,6 +513,8 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
     removerVoto,
     zerarVotosCandidato,
     finalizarMinisterio,
+    encerrarSemCandidatos,
+    reabrirIndicacao,
     resetarSistema,
     setNomeIgreja,
     toggleMinisterioSelecionado,

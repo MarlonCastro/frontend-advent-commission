@@ -18,23 +18,18 @@ const BotaoDoacao = () => {
       {/* Botão Flutuante */}
       <button
         onClick={() => setIsModalOpen(true)}
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+        className="fixed bottom-24 md:bottom-6 right-4 md:right-6 z-40 flex items-center gap-2 px-3 md:px-4 py-2 md:py-3 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
         title="Apoie este projeto"
       >
-        <Heart className="animate-pulse" size={20} fill="currentColor" />
-        <span className="hidden sm:inline">Apoiar</span>
+        <Heart className="animate-pulse" size={18} fill="currentColor" />
+        <span className="hidden sm:inline text-sm md:text-base">Apoiar</span>
       </button>
 
       {/* Modal */}
       {isModalOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4"
-          onClick={() => setIsModalOpen(false)}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 animate-scaleIn"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 animate-scaleIn">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
@@ -62,13 +57,13 @@ const BotaoDoacao = () => {
               {/* PIX */}
               <div className="bg-gradient-to-r from-pink-50 to-rose-50 border-2 border-pink-200 rounded-xl p-4">
                 <p className="text-sm font-semibold text-gray-800 mb-2">Chave PIX:</p>
-                <div className="flex items-center gap-2">
-                  <code className="flex-1 px-3 py-2 bg-white rounded-lg text-pink-700 font-mono text-sm border border-pink-200">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <code className="flex-1 px-3 py-2 bg-white rounded-lg text-pink-700 font-mono text-sm border border-pink-200 break-all">
                     {chavePix}
                   </code>
                   <button
                     onClick={handleCopiarPix}
-                    className="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition flex items-center gap-2"
+                    className="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition flex items-center justify-center gap-2 sm:w-auto"
                   >
                     <Copy size={16} />
                     {copiado ? 'Copiado!' : 'Copiar'}

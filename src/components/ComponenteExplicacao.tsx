@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { BookOpen, Clock, Users, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
+import { BookOpen, Clock, Users, ArrowRight, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { useVotacao } from '../contexts/VotacaoContext';
 import { useNavigate } from 'react-router-dom';
 import ModalMinisterio from './ModalMinisterio';
+import type { Ministerio } from '../data/ministerios';
 
 interface ComponenteExplicacaoProps {
   tempoLeitura?: number; // em segundos, padrão 120 (2 minutos)
@@ -13,7 +14,7 @@ const ComponenteExplicacao = ({
   tempoLeitura = 120,
   autoAvancar = false
 }: ComponenteExplicacaoProps) => {
-  const { ministerioAtual, proximaEtapa, etapaAtual, cancelarMinisterio, getNumeroVagas } = useVotacao();
+  const { ministerioAtual, proximaEtapa, etapaAtual, cancelarMinisterio, getNumeroVagas, resultados } = useVotacao();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tempoRestante, setTempoRestante] = useState(tempoLeitura);
@@ -29,6 +30,15 @@ const ComponenteExplicacao = ({
   const jaFoiExplicado = ministerioAtual
     ? ministeriosExplicados.has(ministerioAtual.id)
     : false;
+
+  // Verificar se já foi votado COM CANDIDATOS (finalizado de verdade)
+  // Ministérios sem candidatos NÃO são bloqueados
+  const resultadoMinisterio = ministerioAtual
+    ? resultados.find(r => r.ministerioId === ministerioAtual.id)
+    : null;
+
+  const jaFoiVotado = resultadoMinisterio ? !resultadoMinisterio.semCandidatos : false;
+  const foiEncerradoSemCandidatos = resultadoMinisterio ? resultadoMinisterio.semCandidatos === true : false;
 
   // Timer para leitura
   useEffect(() => {
@@ -86,7 +96,7 @@ const ComponenteExplicacao = ({
   const handleVoltar = () => {
     cancelarMinisterio();
     setIsModalOpen(false);
-    navigate('/votacao');
+    // Não navega mais, apenas fecha o modal
   };
 
   const handleIniciarIndicacoes = () => {
@@ -104,6 +114,7 @@ const ComponenteExplicacao = ({
       case 'lideranca': return 'bg-purple-100 text-purple-800 border-purple-300';
       case 'ministerio': return 'bg-blue-100 text-blue-800 border-blue-300';
       case 'clube': return 'bg-green-100 text-green-800 border-green-300';
+      case 'personalizado': return 'bg-orange-100 text-orange-800 border-orange-300';
       default: return 'bg-gray-100 text-gray-800 border-gray-300';
     }
   };
@@ -113,9 +124,15 @@ const ComponenteExplicacao = ({
       case 'lideranca': return 'Liderança';
       case 'ministerio': return 'Ministério';
       case 'clube': return 'Clube';
-      default: return categoria;
+      case 'personalizado': return 'Personalizado';
+      default: return 'Categoria';
     }
   };
+
+  // Proteção: se não há ministério selecionado, não renderiza
+  if (!ministerioAtual) {
+    return null;
+  }
 
   return (
     <ModalMinisterio
@@ -136,13 +153,47 @@ const ComponenteExplicacao = ({
             <span className={`inline-block px-4 py-2 rounded-full text-sm font-semibold border ${getCategoriaColor(ministerioAtual.categoria)}`}>
               {getCategoriaName(ministerioAtual.categoria)}
             </span>
-            {jaFoiExplicado && (
+            {jaFoiExplicado && !jaFoiVotado && (
               <div className="mt-3 flex items-center justify-center text-green-600 text-sm">
                 <CheckCircle size={16} className="mr-1" />
                 <span>Este ministério já foi explicado anteriormente</span>
               </div>
             )}
+            {jaFoiVotado && (
+              <div className="mt-3 flex items-center justify-center text-red-600 text-sm bg-red-50 px-4 py-2 rounded-lg border border-red-200">
+                <CheckCircle size={16} className="mr-1" />
+                <span className="font-semibold">Este ministério já foi votado e finalizado</span>
+              </div>
+            )}
           </div>
+
+          {/* Alerta de Ministério Já Votado */}
+          {jaFoiVotado && (
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+              <p className="text-sm text-red-800">
+                <span className="font-bold">Atenção:</span> Este ministério já passou pelo processo completo
+                de indicação e votação. Não é possível votar novamente.
+              </p>
+            </div>
+          )}
+
+          {/* Alerta de Ministério Encerrado Sem Candidatos */}
+          {foiEncerradoSemCandidatos && (
+            <div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-r-lg">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="text-orange-600 flex-shrink-0 mt-0.5" size={20} />
+                <div>
+                  <p className="text-sm text-orange-800 font-semibold mb-1">
+                    Ministério anteriormente encerrado sem candidatos
+                  </p>
+                  <p className="text-xs text-orange-700">
+                    Este ministério foi encerrado sem indicações. Você pode agora realizar o processo
+                    normalmente de indicação e votação.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Descrição Curta */}
           <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-lg">
@@ -165,7 +216,7 @@ const ComponenteExplicacao = ({
               Cargos do Ministério:
             </h4>
             <div className="grid sm:grid-cols-2 gap-3">
-              {ministerioAtual.cargos.map((cargo) => (
+              {ministerioAtual.cargos.map((cargo: Ministerio['cargos'][0]) => (
                 <div
                   key={cargo.id}
                   className="bg-white p-3 rounded-lg border border-gray-200 hover:border-blue-300 transition"
@@ -187,7 +238,7 @@ const ComponenteExplicacao = ({
             </h4>
             <div className="prose prose-sm max-w-none">
               <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                {ministerioAtual.explicacao}
+                {ministerioAtual.explicacao || ministerioAtual.descricao || 'Sem descrição disponível.'}
               </p>
             </div>
           </div>
@@ -226,9 +277,10 @@ const ComponenteExplicacao = ({
             </button>
             <button
               onClick={handleIniciarIndicacoes}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition shadow-md hover:shadow-lg"
+              disabled={jaFoiVotado}
+              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition shadow-md hover:shadow-lg"
             >
-              Iniciar Indicações
+              {jaFoiVotado ? 'Já Votado' : 'Iniciar Indicações'}
               <ArrowRight size={20} />
             </button>
           </div>

@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import { useVotacao } from '../contexts/VotacaoContext';
 
 const Home = () => {
-  const { nomeIgreja, ministeriosSelecionados } = useVotacao();
+  const { nomeIgreja, ministeriosSelecionados, resultados } = useVotacao();
   const comissaoConfigurada = nomeIgreja.trim() !== '' && ministeriosSelecionados.length > 0;
+  const temResultados = resultados.length > 0;
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -61,7 +62,15 @@ const Home = () => {
             </Link>
             <Link
               to="/relatorios"
-              className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-lg font-semibold transition shadow-md hover:shadow-lg"
+              className={`flex items-center gap-2 px-8 py-3 rounded-lg font-semibold transition shadow-md hover:shadow-lg ${temResultados
+                ? 'bg-gray-600 hover:bg-gray-700 text-white'
+                : 'bg-gray-300 cursor-not-allowed text-gray-500'
+                }`}
+              onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                if (!temResultados) {
+                  e.preventDefault();
+                }
+              }}
             >
               <FileText size={20} />
               Ver Relatórios

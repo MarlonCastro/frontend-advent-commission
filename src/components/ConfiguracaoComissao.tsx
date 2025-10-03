@@ -183,40 +183,14 @@ const ConfiguracaoComissao = () => {
                 </div>
 
                 {/* Lista de Ministérios */}
-                <div className="space-y-2 max-h-[calc(100vh-500px)] overflow-y-auto pr-2">
-                  {ministeriosFiltrados.map(ministerio => {
-                    const isSelecionado = ministeriosSelecionados.includes(ministerio.id);
-                    return (
-                      <button
-                        key={ministerio.id}
-                        onClick={() => toggleMinisterioSelecionado(ministerio.id)}
-                        className={`w-full flex items-center gap-3 p-3 rounded-lg border-2 transition ${isSelecionado
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                      >
-                        {isSelecionado ? (
-                          <CheckSquare className="text-blue-600 flex-shrink-0" size={24} />
-                        ) : (
-                          <Square className="text-gray-400 flex-shrink-0" size={24} />
-                        )}
-                        <div className="flex-1 text-left min-w-0">
-                          <p className={`font-semibold truncate ${isSelecionado ? 'text-blue-900' : 'text-gray-800'}`}>
-                            {ministerio.nome}
-                          </p>
-                          <p className="text-xs text-gray-500 truncate">{ministerio.descricao}</p>
-                        </div>
-                        <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                          {ministerio.cargos.length} {ministerio.cargos.length === 1 ? 'vaga' : 'vagas'}
-                        </span>
-                      </button>
-                    );
-                  })}
-
-                  {/* Departamentos Personalizados */}
+                <div className="space-y-2 max-h-[calc(100vh)] overflow-y-auto pr-2">
+                  {/* Departamentos Personalizados - MOVIDO PARA O TOPO */}
                   {departamentosPersonalizados.length > 0 && (
-                    <div className="pt-4 mt-4 border-t border-gray-200">
-                      <p className="text-sm font-semibold text-gray-700 mb-2">Departamentos Personalizados</p>
+                    <div className="pb-4 mb-4 border-b border-gray-200">
+                      <p className="text-sm font-semibold text-purple-700 mb-2 flex items-center gap-2">
+                        <Plus size={16} />
+                        Departamentos Personalizados
+                      </p>
                       {departamentosPersonalizados.map(dept => {
                         const isSelecionado = ministeriosSelecionados.includes(dept.id);
                         return (
@@ -258,6 +232,36 @@ const ConfiguracaoComissao = () => {
                       })}
                     </div>
                   )}
+
+                  {/* Ministérios Padrão */}
+                  {ministeriosFiltrados.map(ministerio => {
+                    const isSelecionado = ministeriosSelecionados.includes(ministerio.id);
+                    return (
+                      <button
+                        key={ministerio.id}
+                        onClick={() => toggleMinisterioSelecionado(ministerio.id)}
+                        className={`w-full flex items-center gap-3 p-3 rounded-lg border-2 transition ${isSelecionado
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                      >
+                        {isSelecionado ? (
+                          <CheckSquare className="text-blue-600 flex-shrink-0" size={24} />
+                        ) : (
+                          <Square className="text-gray-400 flex-shrink-0" size={24} />
+                        )}
+                        <div className="flex-1 text-left min-w-0">
+                          <p className={`font-semibold truncate ${isSelecionado ? 'text-blue-900' : 'text-gray-800'}`}>
+                            {ministerio.nome}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate">{ministerio.descricao}</p>
+                        </div>
+                        <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                          {ministerio.cargos.length} {ministerio.cargos.length === 1 ? 'vaga' : 'vagas'}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

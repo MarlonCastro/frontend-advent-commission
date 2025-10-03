@@ -8,7 +8,7 @@ import Resultados from './pages/Resultados';
 import Votacao from './pages/Votacao';
 import Assembleia from './pages/Assembleia';
 import Relatorios from './pages/Relatorios';
-import ComponenteExplicacao from './components/ComponenteExplicacao';
+import Ajuda from './pages/Ajuda';
 import FormularioIndicacao from './components/FormularioIndicacao';
 import TelaPrincipalVotacao from './components/TelaPrincipalVotacao';
 import ConfiguracaoComissao from './components/ConfiguracaoComissao';
@@ -32,12 +32,12 @@ function App() {
             <Route path="votacao" element={<Votacao />} />
             <Route path="assembleia" element={<Assembleia />} />
             <Route path="relatorios" element={<Relatorios />} />
+            <Route path="ajuda" element={<Ajuda />} />
           </Route>
 
           {/* Rotas sem Layout (tela cheia para etapas) */}
           <Route path="votacao">
             <Route path="configuracao" element={<ConfiguracaoComissao />} />
-            <Route path="explicacao" element={<ComponenteExplicacao tempoLeitura={120} autoAvancar={false} />} />
             <Route path="indicacao" element={<FormularioIndicacao />} />
             <Route path="votando" element={<TelaPrincipalVotacao />} />
           </Route>
