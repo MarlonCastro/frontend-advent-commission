@@ -39,7 +39,7 @@ const ConfiguracaoComissao = () => {
   // Estados locais para o formulário
   const [nomeDepartamento, setNomeDepartamento] = useState('');
   const [descricaoDepartamento, setDescricaoDepartamento] = useState('');
-  const [vagasDepartamento, setVagasDepartamento] = useState(2);
+  const [vagasDepartamento, setVagasDepartamento] = useState('2');
   const [erro, setErro] = useState('');
   const [filtroCategoria, setFiltroCategoria] = useState<string>('Todos');
   const [abaAtiva, setAbaAtiva] = useState<'configuracao' | 'preCadastro'>('configuracao');
@@ -63,15 +63,16 @@ const ConfiguracaoComissao = () => {
       return;
     }
 
-    if (vagasDepartamento < 1 || vagasDepartamento > 10) {
+    const numVagas = parseInt(vagasDepartamento);
+    if (isNaN(numVagas) || numVagas < 1 || numVagas > 10) {
       setErro('Número de vagas deve ser entre 1 e 10');
       return;
     }
 
-    adicionarDepartamentoPersonalizado(nomeDepartamento.trim(), descricaoDepartamento.trim(), vagasDepartamento);
+    adicionarDepartamentoPersonalizado(nomeDepartamento.trim(), descricaoDepartamento.trim(), numVagas);
     setNomeDepartamento('');
     setDescricaoDepartamento('');
-    setVagasDepartamento(2);
+    setVagasDepartamento('2');
     setErro('');
   };
 
@@ -100,38 +101,38 @@ const ConfiguracaoComissao = () => {
   const textoBotao = comissaoEmAndamento ? 'Retomar Comissão' : 'Iniciar Comissão';
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 p-3 md:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Cabeçalho */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <Settings className="text-blue-600" size={32} />
-            <h1 className="text-3xl font-bold text-gray-800">Configuração da Comissão</h1>
+        <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-4 md:mb-6">
+          <div className="flex items-center gap-2 md:gap-3 mb-2">
+            <Settings className="text-blue-600" size={24} md-size={32} />
+            <h1 className="text-xl md:text-3xl font-bold text-gray-800">Configuração da Comissão</h1>
           </div>
-          <p className="text-gray-600 ml-11 mb-4">
+          <p className="text-sm md:text-base text-gray-600 ml-0 md:ml-11 mb-4">
             Configure os ministérios que serão votados hoje e informe os dados da igreja
           </p>
 
           {/* Tabs */}
-          <div className="flex gap-2 mt-6 border-b border-gray-200">
+          <div className="flex gap-2 mt-4 md:mt-6 border-b border-gray-200 overflow-x-auto">
             <button
               onClick={() => setAbaAtiva('configuracao')}
-              className={`flex items-center gap-2 px-4 py-3 font-semibold transition border-b-2 ${abaAtiva === 'configuracao'
+              className={`flex items-center gap-2 px-3 md:px-4 py-2 md:py-3 font-semibold text-sm md:text-base transition border-b-2 whitespace-nowrap ${abaAtiva === 'configuracao'
                 ? 'border-blue-600 text-blue-600'
                 : 'border-transparent text-gray-600 hover:text-gray-800'
                 }`}
             >
-              <ListChecks size={20} />
+              <ListChecks size={18} md-size={20} />
               Configuração
             </button>
             <button
               onClick={() => setAbaAtiva('preCadastro')}
-              className={`flex items-center gap-2 px-4 py-3 font-semibold transition border-b-2 ${abaAtiva === 'preCadastro'
+              className={`flex items-center gap-2 px-3 md:px-4 py-2 md:py-3 font-semibold text-sm md:text-base transition border-b-2 whitespace-nowrap ${abaAtiva === 'preCadastro'
                 ? 'border-blue-600 text-blue-600'
                 : 'border-transparent text-gray-600 hover:text-gray-800'
                 }`}
             >
-              <Users size={20} />
+              <Users size={18} md-size={20} />
               Pré-Cadastro
             </button>
           </div>
@@ -141,15 +142,15 @@ const ConfiguracaoComissao = () => {
         {abaAtiva === 'configuracao' ? (
           <>
             {/* Layout em 2 Colunas - Configuração */}
-            <div className="grid lg:grid-cols-2 gap-6 mb-6">
+            <div className="grid lg:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
               {/* Coluna Esquerda - Seleção de Ministérios */}
-              <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
                 <div className="mb-4">
-                  <h2 className="text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-                    <CheckSquare className="text-blue-600" size={24} />
+                  <h2 className="text-lg md:text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+                    <CheckSquare className="text-blue-600" size={20} md-size={24} />
                     Ministérios e Departamentos
                   </h2>
-                  <p className="text-sm text-gray-600 mb-4">
+                  <p className="text-xs md:text-sm text-gray-600 mb-4">
                     Selecione os ministérios que serão votados nesta comissão
                   </p>
 
@@ -187,7 +188,7 @@ const ConfiguracaoComissao = () => {
                 </div>
 
                 {/* Lista de Ministérios */}
-                <div className="space-y-2 max-h-[calc(100vh)] overflow-y-auto pr-2">
+                <div className="space-y-2 max-h-[50vh] md:max-h-[calc(100vh-400px)] overflow-y-auto pr-2">
                   {/* Departamentos Personalizados - MOVIDO PARA O TOPO */}
                   {departamentosPersonalizados.length > 0 && (
                     <div className="pb-4 mb-4 border-b border-gray-200">
@@ -244,24 +245,24 @@ const ConfiguracaoComissao = () => {
                       <button
                         key={ministerio.id}
                         onClick={() => toggleMinisterioSelecionado(ministerio.id)}
-                        className={`w-full flex items-center gap-3 p-3 rounded-lg border-2 transition ${isSelecionado
+                        className={`w-full flex items-center gap-2 md:gap-3 p-2 md:p-3 rounded-lg border-2 transition ${isSelecionado
                           ? 'border-blue-500 bg-blue-50'
                           : 'border-gray-200 hover:border-gray-300'
                           }`}
                       >
                         {isSelecionado ? (
-                          <CheckSquare className="text-blue-600 flex-shrink-0" size={24} />
+                          <CheckSquare className="text-blue-600 flex-shrink-0" size={20} md-size={24} />
                         ) : (
-                          <Square className="text-gray-400 flex-shrink-0" size={24} />
+                          <Square className="text-gray-400 flex-shrink-0" size={20} md-size={24} />
                         )}
                         <div className="flex-1 text-left min-w-0">
-                          <p className={`font-semibold truncate ${isSelecionado ? 'text-blue-900' : 'text-gray-800'}`}>
+                          <p className={`text-sm md:text-base font-semibold truncate ${isSelecionado ? 'text-blue-900' : 'text-gray-800'}`}>
                             {ministerio.nome}
                           </p>
-                          <p className="text-xs text-gray-500 truncate">{ministerio.descricao}</p>
+                          <p className="text-xs text-gray-500 truncate hidden md:block">{ministerio.descricao}</p>
                         </div>
-                        <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                          {ministerio.cargos.length} {ministerio.cargos.length === 1 ? 'vaga' : 'vagas'}
+                        <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded flex-shrink-0">
+                          {ministerio.cargos.length}
                         </span>
                       </button>
                     );
@@ -270,11 +271,11 @@ const ConfiguracaoComissao = () => {
               </div>
 
               {/* Coluna Direita - Configurações */}
-              <div className="space-y-6">
+              <div className="space-y-4 md:space-y-6">
                 {/* Nome da Igreja */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                    <Church className="text-blue-600" size={24} />
+                <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+                  <h2 className="text-lg md:text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <Church className="text-blue-600" size={20} md-size={24} />
                     Dados da Igreja
                   </h2>
 
@@ -305,9 +306,9 @@ const ConfiguracaoComissao = () => {
                 </div>
 
                 {/* Adicionar Departamento Personalizado */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                    <Plus className="text-blue-600" size={24} />
+                <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+                  <h2 className="text-lg md:text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <Plus className="text-blue-600" size={20} md-size={24} />
                     Departamento Personalizado
                   </h2>
 
@@ -351,14 +352,25 @@ const ConfiguracaoComissao = () => {
                         Número de Vagas
                       </span>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={vagasDepartamento}
                         onChange={(e) => {
-                          setVagasDepartamento(Number(e.target.value));
-                          setErro('');
+                          const value = e.target.value;
+                          // Permitir vazio OU apenas números de 1 a 2 dígitos
+                          if (value === '' || (/^\d{1,2}$/.test(value) && parseInt(value) <= 10)) {
+                            setVagasDepartamento(value);
+                            setErro('');
+                          }
                         }}
-                        min={1}
-                        max={10}
+                        onBlur={(e) => {
+                          // Se estiver vazio ao sair, coloca 2 como padrão
+                          if (e.target.value === '') {
+                            setVagasDepartamento('2');
+                          }
+                        }}
+                        placeholder="Ex: 2"
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                       />
                     </label>

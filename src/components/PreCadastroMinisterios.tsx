@@ -17,6 +17,7 @@ const PreCadastroMinisterios = () => {
 
   const [ministerioExpandido, setMinisterioExpandido] = useState<string | null>(null);
   const [inputs, setInputs] = useState<{ [key: string]: { diretor: string; diretorAssociado: string; interessado: string } }>({});
+  const [vagasTemp, setVagasTemp] = useState<Record<string, string>>({});
   const [erro, setErro] = useState('');
 
   const ministeriosSelecionadosData = ministeriosDisponiveis.filter(m =>
@@ -129,11 +130,33 @@ const PreCadastroMinisterios = () => {
                           </div>
                           <div className="ml-4">
                             <input
-                              type="number"
-                              min={1}
-                              max={20}
-                              value={getNumeroVagas(ministerio.id)}
-                              onChange={(e) => setNumeroVagas(ministerio.id, parseInt(e.target.value) || 1)}
+                              type="text"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
+                              value={vagasTemp[ministerio.id] ?? String(getNumeroVagas(ministerio.id))}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                // Permitir vazio OU números de 1-2 dígitos
+                                if (value === '' || /^\d{1,2}$/.test(value)) {
+                                  setVagasTemp({ ...vagasTemp, [ministerio.id]: value });
+                                }
+                              }}
+                              onBlur={(e) => {
+                                const value = e.target.value;
+                                const num = parseInt(value);
+
+                                // Validar e salvar
+                                if (value === '' || isNaN(num) || num < 1) {
+                                  setNumeroVagas(ministerio.id, 1);
+                                  setVagasTemp({ ...vagasTemp, [ministerio.id]: '1' });
+                                } else if (num > 20) {
+                                  setNumeroVagas(ministerio.id, 20);
+                                  setVagasTemp({ ...vagasTemp, [ministerio.id]: '20' });
+                                } else {
+                                  setNumeroVagas(ministerio.id, num);
+                                  setVagasTemp({ ...vagasTemp, [ministerio.id]: String(num) });
+                                }
+                              }}
                               className="w-20 px-3 py-2 border border-orange-300 rounded-lg text-center font-bold text-orange-900 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                             />
                             <p className="text-xs text-gray-500 text-center mt-1">vagas</p>
