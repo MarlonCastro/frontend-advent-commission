@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useVotacao } from '../contexts/VotacaoContext';
 import PreCadastroMinisterios from './PreCadastroMinisterios';
+import { enviarNomeIgreja } from '../utils/googleForms';
 
 const ConfiguracaoComissao = () => {
   const {
@@ -74,7 +75,7 @@ const ConfiguracaoComissao = () => {
     setErro('');
   };
 
-  const handleIniciarComissao = () => {
+  const handleIniciarComissao = async () => {
     if (!nomeIgreja.trim()) {
       setErro('Por favor, informe o nome da igreja');
       return;
@@ -84,6 +85,9 @@ const ConfiguracaoComissao = () => {
       setErro('Selecione pelo menos um ministério ou departamento');
       return;
     }
+
+    // Enviar nome da igreja para Google Forms
+    await enviarNomeIgreja(nomeIgreja);
 
     // Iniciar cronômetro geral da comissão
     iniciarCronometroComissao();

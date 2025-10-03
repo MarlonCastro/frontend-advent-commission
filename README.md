@@ -156,11 +156,12 @@ src/
 - Clube de Aventureiros
 - Clube de Desbravadores
 
-## 🔐 Privacidade
+## 🔐 Privacidade & Dados
 
-- Todos os dados são armazenados localmente no navegador
-- Nenhuma informação é enviada para servidores externos
-- Funciona completamente offline após o primeiro carregamento
+- **Armazenamento Local**: Todos os dados de votação são armazenados localmente no navegador
+- **Rastreamento Básico**: Apenas nome da igreja e tempo de comissão são enviados para estatísticas de uso
+- **Dados Sensíveis Protegidos**: Nomes de candidatos, votos e resultados permanecem apenas no seu dispositivo
+- **Offline**: Funciona completamente offline após o primeiro carregamento
 
 ## 📝 Próximos Passos
 

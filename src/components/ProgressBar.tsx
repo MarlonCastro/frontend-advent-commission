@@ -3,11 +3,18 @@ import { Clock, CheckCircle2, TrendingUp, Timer } from 'lucide-react';
 import { useVotacao } from '../contexts/VotacaoContext';
 
 const ProgressBar = () => {
-  const { progressoGeral, ministerioAtual, ministeriosDisponiveis, resultados, tempoEstimado, inicioComissao, comissaoEncerrada } = useVotacao();
+  const { progressoGeral, ministerioAtual, ministeriosDisponiveis, resultados, tempoEstimado, inicioComissao, comissaoEncerrada, encerrarComissao } = useVotacao();
   const [tempoDecorrido, setTempoDecorrido] = useState(0);
   const [duracaoFinal, setDuracaoFinal] = useState<number | null>(null);
 
   const todosFinalizados = progressoGeral === 100 && ministeriosDisponiveis.length > 0;
+
+  // Encerrar comissão automaticamente quando todos os ministérios forem finalizados
+  useEffect(() => {
+    if (todosFinalizados && !comissaoEncerrada) {
+      encerrarComissao();
+    }
+  }, [todosFinalizados, comissaoEncerrada, encerrarComissao]);
 
   // Atualizar cronômetro a cada segundo (só se não estiver finalizado)
   useEffect(() => {

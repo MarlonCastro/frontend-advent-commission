@@ -127,7 +127,8 @@ const Home = () => {
             </p>
             <ul className="list-disc list-inside text-gray-700 space-y-1">
               <li>Todos os dados são armazenados localmente no seu navegador</li>
-              <li>Nenhuma informação é enviada para servidores externos</li>
+              <li>Rastreamento básico de uso (nome da igreja) para estatísticas</li>
+              <li>Dados sensíveis (candidatos, votos) permanecem apenas no seu dispositivo</li>
               <li>Funciona offline após o primeiro carregamento</li>
               <li>Compatível com todos os dispositivos modernos</li>
             </ul>

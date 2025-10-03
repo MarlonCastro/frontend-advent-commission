@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { ministerios } from '../data/ministerios';
 import type { Ministerio } from '../data/ministerios';
 import useLocalStorage from '../hooks/useLocalStorage';
+import { enviarFinalizacaoComissao } from '../utils/googleForms';
 
 // Tipos
 interface Candidato {
@@ -118,6 +119,7 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
   const [configuracoesVagas, setConfiguracoesVagas] = useLocalStorage<ConfiguracaoVagas[]>('configuracoesVagas', []);
   const [inicioComissao, setInicioComissao] = useLocalStorage<number | null>('inicioComissao', null);
   const [comissaoEncerrada, setComissaoEncerrada] = useLocalStorage<boolean>('comissaoEncerrada', false);
+  const [finalizacaoEnviada, setFinalizacaoEnviada] = useLocalStorage<boolean>('finalizacaoEnviada', false);
 
   // Estado derivado - Ministérios disponíveis (padrão + personalizados)
   const todosMinisterios = [...ministerios, ...departamentosPersonalizados];
@@ -314,6 +316,7 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
       setConfiguracoesVagas([]);
       setInicioComissao(null);
       setComissaoEncerrada(false);
+      setFinalizacaoEnviada(false);
     }
   };
 
@@ -493,8 +496,25 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
   };
 
   // Função: Encerrar Comissão Manualmente
-  const encerrarComissao = () => {
+  const encerrarComissao = async () => {
     setComissaoEncerrada(true);
+
+    // Evitar envio duplicado
+    if (finalizacaoEnviada) {
+      console.log('⚠️ Finalização já foi enviada anteriormente');
+      return;
+    }
+
+    // Calcular duração total da comissão
+    if (inicioComissao) {
+      const duracaoSegundos = Math.floor((Date.now() - inicioComissao) / 1000);
+
+      // Enviar para Google Forms
+      await enviarFinalizacaoComissao(nomeIgreja, duracaoSegundos);
+
+      // Marcar como enviado
+      setFinalizacaoEnviada(true);
+    }
   };
 
   const value: VotacaoContextData = {
