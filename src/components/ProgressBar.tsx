@@ -85,14 +85,14 @@ const ProgressBar = () => {
               : 'bg-blue-50 border-blue-200'
               }`}>
               <div className="flex items-center gap-2">
-                <Timer className={todosFinalizados ? 'text-green-600' : 'text-blue-600'} size={16} md-size={18} />
-                <span className={`text-base md:text-lg font-mono font-bold ${todosFinalizados ? 'text-green-600' : 'text-blue-600'
+                <Timer className={(todosFinalizados || comissaoEncerrada) ? 'text-green-600' : 'text-blue-600'} size={16} md-size={18} />
+                <span className={`text-base md:text-lg font-mono font-bold ${(todosFinalizados || comissaoEncerrada) ? 'text-green-600' : 'text-blue-600'
                   }`}>
                   {formatarCronometro(duracaoFinal || tempoDecorrido)}
                 </span>
               </div>
-              <p className={`text-xs ${todosFinalizados ? 'text-green-700' : 'text-blue-700'}`}>
-                {todosFinalizados ? 'Duração Total' : 'Tempo Total'}
+              <p className={`text-xs ${(todosFinalizados || comissaoEncerrada) ? 'text-green-700' : 'text-blue-700'}`}>
+                {(todosFinalizados || comissaoEncerrada) ? 'Duração Total' : 'Tempo Total'}
               </p>
             </div>
           )}
