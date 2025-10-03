@@ -3,7 +3,7 @@ import { Clock, CheckCircle2, TrendingUp, Timer } from 'lucide-react';
 import { useVotacao } from '../contexts/VotacaoContext';
 
 const ProgressBar = () => {
-  const { progressoGeral, ministerioAtual, ministeriosDisponiveis, resultados, tempoEstimado, inicioComissao } = useVotacao();
+  const { progressoGeral, ministerioAtual, ministeriosDisponiveis, resultados, tempoEstimado, inicioComissao, comissaoEncerrada } = useVotacao();
   const [tempoDecorrido, setTempoDecorrido] = useState(0);
   const [duracaoFinal, setDuracaoFinal] = useState<number | null>(null);
 
@@ -17,8 +17,8 @@ const ProgressBar = () => {
       return;
     }
 
-    // Se todos finalizados, parar cronômetro e salvar duração final
-    if (todosFinalizados) {
+    // Se todos finalizados OU comissão encerrada manualmente, parar cronômetro
+    if (todosFinalizados || comissaoEncerrada) {
       if (duracaoFinal === null) {
         const agora = Date.now();
         const segundos = Math.floor((agora - inicioComissao) / 1000);
@@ -36,7 +36,7 @@ const ProgressBar = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [inicioComissao, todosFinalizados, duracaoFinal]);
+  }, [inicioComissao, todosFinalizados, comissaoEncerrada, duracaoFinal]);
 
   // Formata tempo em segundos para formato legível
   const formatarTempo = (segundos: number) => {

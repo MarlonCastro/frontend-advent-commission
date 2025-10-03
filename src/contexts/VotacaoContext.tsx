@@ -55,6 +55,7 @@ interface VotacaoContextData {
   preCadastros: PreCadastroMinisterio[];
   configuracoesVagas: ConfiguracaoVagas[];
   inicioComissao: number | null;
+  comissaoEncerrada: boolean;
 
   // Funções
   selecionarMinisterio: (id: string) => void;
@@ -92,6 +93,7 @@ interface VotacaoContextData {
 
   // Função de Controle da Comissão
   iniciarCronometroComissao: () => void;
+  encerrarComissao: () => void;
 }
 
 const VotacaoContext = createContext<VotacaoContextData | undefined>(undefined);
@@ -115,6 +117,7 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
   const [preCadastros, setPreCadastros] = useLocalStorage<PreCadastroMinisterio[]>('preCadastros', []);
   const [configuracoesVagas, setConfiguracoesVagas] = useLocalStorage<ConfiguracaoVagas[]>('configuracoesVagas', []);
   const [inicioComissao, setInicioComissao] = useLocalStorage<number | null>('inicioComissao', null);
+  const [comissaoEncerrada, setComissaoEncerrada] = useLocalStorage<boolean>('comissaoEncerrada', false);
 
   // Estado derivado - Ministérios disponíveis (padrão + personalizados)
   const todosMinisterios = [...ministerios, ...departamentosPersonalizados];
@@ -310,6 +313,7 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
       setPreCadastros([]);
       setConfiguracoesVagas([]);
       setInicioComissao(null);
+      setComissaoEncerrada(false);
     }
   };
 
@@ -488,6 +492,11 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
     }
   };
 
+  // Função: Encerrar Comissão Manualmente
+  const encerrarComissao = () => {
+    setComissaoEncerrada(true);
+  };
+
   const value: VotacaoContextData = {
     ministerios,
     ministerioAtual,
@@ -503,6 +512,7 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
     preCadastros,
     configuracoesVagas,
     inicioComissao,
+    comissaoEncerrada,
     selecionarMinisterio,
     proximaEtapa,
     voltarEtapa,
@@ -530,6 +540,7 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
     setNumeroVagas,
     getNumeroVagas,
     iniciarCronometroComissao,
+    encerrarComissao,
   };
 
   return (

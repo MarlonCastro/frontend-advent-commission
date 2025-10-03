@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { AlertTriangle, FileText, Settings, Trash2, AlertOctagon } from 'lucide-react';
 
 const Votacao = () => {
-  const { nomeIgreja, ministeriosSelecionados, ministeriosDisponiveis, resultados } = useVotacao();
+  const { nomeIgreja, ministeriosSelecionados, ministeriosDisponiveis, resultados, comissaoEncerrada, encerrarComissao } = useVotacao();
   const navigate = useNavigate();
   const [showModalFinalizacao, setShowModalFinalizacao] = useState(false);
   const [showModalLimparDados, setShowModalLimparDados] = useState(false);
@@ -27,10 +27,10 @@ const Votacao = () => {
   const todosFinalizados = ministeriosFinalizados === totalMinisterios && totalMinisterios > 0;
 
   // Texto do botão baseado no estado
-  const textoBotaoFinalizar = todosFinalizados ? 'Ver Relatórios' : 'Finalizar Comissão';
+  const textoBotaoFinalizar = (todosFinalizados || comissaoEncerrada) ? 'Ver Relatórios' : 'Finalizar Comissão';
 
   const handleFinalizarComissao = () => {
-    if (todosFinalizados) {
+    if (todosFinalizados || comissaoEncerrada) {
       navigate('/relatorios');
     } else {
       setShowModalFinalizacao(true);
@@ -39,7 +39,9 @@ const Votacao = () => {
 
   const handleConfirmarFinalizacao = () => {
     setShowModalFinalizacao(false);
-    // Não limpar o cronômetro, apenas ir para relatórios
+    // Encerrar comissão (para o cronômetro)
+    encerrarComissao();
+    // Ir para relatórios
     navigate('/relatorios');
   };
 
@@ -93,7 +95,7 @@ const Votacao = () => {
             <button
               onClick={handleFinalizarComissao}
               disabled={ministeriosFinalizados === 0}
-              className={`flex items-center gap-2 px-6 py-3 font-bold rounded-lg transition shadow-lg hover:shadow-xl ${todosFinalizados
+              className={`flex items-center gap-2 px-6 py-3 font-bold rounded-lg transition shadow-lg hover:shadow-xl ${(todosFinalizados || comissaoEncerrada)
                 ? 'bg-green-600 hover:bg-green-700 text-white'
                 : ministeriosFinalizados > 0
                   ? 'bg-blue-600 hover:bg-blue-700 text-white'
@@ -126,7 +128,7 @@ const Votacao = () => {
             <button
               onClick={handleFinalizarComissao}
               disabled={ministeriosFinalizados === 0}
-              className={`flex items-center justify-center gap-1 px-4 py-2 font-semibold rounded-lg transition text-sm flex-1 ${todosFinalizados
+              className={`flex items-center justify-center gap-1 px-4 py-2 font-semibold rounded-lg transition text-sm flex-1 ${(todosFinalizados || comissaoEncerrada)
                 ? 'bg-green-600 hover:bg-green-700 text-white'
                 : ministeriosFinalizados > 0
                   ? 'bg-blue-600 hover:bg-blue-700 text-white'
@@ -134,7 +136,7 @@ const Votacao = () => {
                 }`}
             >
               <FileText size={16} />
-              {todosFinalizados ? 'Relatórios' : 'Finalizar'}
+              {(todosFinalizados || comissaoEncerrada) ? 'Relatórios' : 'Finalizar'}
             </button>
           </div>
         </div>
