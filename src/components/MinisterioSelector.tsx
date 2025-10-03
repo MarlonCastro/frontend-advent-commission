@@ -6,7 +6,7 @@ import { useVotacao } from '../contexts/VotacaoContext';
 type FiltroStatus = 'todos' | 'pendentes' | 'finalizados';
 
 const MinisterioSelector = () => {
-  const { ministeriosDisponiveis, resultados, selecionarMinisterio, ministerioAtual, reabrirIndicacao } = useVotacao();
+  const { ministeriosDisponiveis, resultados, selecionarMinisterio, ministerioAtual, reabrirIndicacao, comissaoEncerrada } = useVotacao();
   const [filtroStatus, setFiltroStatus] = useState<FiltroStatus>('todos');
 
   // Verifica se ministério está finalizado
@@ -66,6 +66,12 @@ const MinisterioSelector = () => {
 
   // Handle de seleção
   const handleSelecao = (opcao: any) => {
+    // Bloquear seleção se comissão foi encerrada
+    if (comissaoEncerrada) {
+      alert('A comissão já foi encerrada. Para iniciar nova votação, limpe os dados e configure uma nova comissão.');
+      return;
+    }
+    
     if (opcao) {
       selecionarMinisterio(opcao.value);
       // Modal de explicação abrirá automaticamente na mesma página
@@ -84,6 +90,11 @@ const MinisterioSelector = () => {
           <Filter className="text-blue-600" size={24} />
           <h2 className="text-xl font-bold text-gray-800">Selecionar Ministério</h2>
         </div>
+        {comissaoEncerrada && (
+          <span className="px-3 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full border border-red-300">
+            Comissão Encerrada
+          </span>
+        )}
       </div>
 
       {/* Filtros de Status */}

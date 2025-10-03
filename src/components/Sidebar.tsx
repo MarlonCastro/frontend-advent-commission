@@ -25,12 +25,7 @@ const Sidebar = ({
       icon: Vote,
       description: 'Sistema de votação',
     },
-    {
-      path: '/assembleia',
-      label: 'Modo Assembleia',
-      icon: Presentation,
-      description: 'Apresentação pública',
-    },
+
     {
       path: '/relatorios',
       label: 'Relatórios',
@@ -42,6 +37,12 @@ const Sidebar = ({
       label: 'Ajuda',
       icon: HelpCircle,
       description: 'Tutorial e suporte',
+    },
+    {
+      path: '/assembleia',
+      label: 'Modo Assembleia',
+      icon: Presentation,
+      description: 'Apresentação pública',
     },
   ];
 
