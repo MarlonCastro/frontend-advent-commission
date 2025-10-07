@@ -2,6 +2,21 @@
 const FORM_ID = '1FAIpQLSf5vWwPwyK4d9_odsTnYLNotlNQ_tu_m0qzXk_OR2q_Jc6Yng';
 const FORM_URL = `https://docs.google.com/forms/d/e/${FORM_ID}/formResponse`;
 
+/**
+ * Verifica se está em ambiente local (desenvolvimento)
+ */
+const isLocalEnvironment = (): boolean => {
+  return (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname === '0.0.0.0' ||
+    window.location.port === '5173' || // Vite dev server
+    window.location.port === '3000' || // React dev server
+    window.location.port === '8080' || // Outros dev servers
+    window.location.protocol === 'file:' // Arquivo local
+  );
+};
+
 // IDs dos campos do formulário
 const FIELDS = {
   nomeIgreja: 'entry.294222580',
@@ -14,6 +29,12 @@ const FIELDS = {
  */
 export const enviarNomeIgreja = async (nomeIgreja: string): Promise<void> => {
   if (!nomeIgreja || nomeIgreja.trim() === '') return;
+
+  // Verificar se está em ambiente local
+  if (isLocalEnvironment()) {
+    console.log('🚫 [AMBIENTE LOCAL] Envio do nome da igreja bloqueado:', nomeIgreja);
+    return;
+  }
 
   const formData = new URLSearchParams();
   formData.append(FIELDS.nomeIgreja, nomeIgreja);
@@ -40,6 +61,12 @@ export const enviarFinalizacaoComissao = async (
 ): Promise<void> => {
   if (!nomeIgreja || nomeIgreja.trim() === '') return;
 
+  // Verificar se está em ambiente local
+  if (isLocalEnvironment()) {
+    console.log('🚫 [AMBIENTE LOCAL] Envio de finalização bloqueado:', nomeIgreja, `(${duracaoSegundos}s)`);
+    return;
+  }
+
   // Formatar duração para texto legível
   const horas = Math.floor(duracaoSegundos / 3600);
   const minutos = Math.floor((duracaoSegundos % 3600) / 60);
@@ -60,6 +87,7 @@ export const enviarFinalizacaoComissao = async (
       mode: 'no-cors', // Importante para CORS
       body: formData
     });
+    console.log('✅ Finalização enviada com sucesso:', mensagem);
   } catch (error) {
     console.error('❌ Erro ao enviar finalização:', error);
     // Não bloqueia a aplicação se falhar

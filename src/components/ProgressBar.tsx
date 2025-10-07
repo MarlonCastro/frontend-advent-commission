@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Clock, CheckCircle2, TrendingUp, Timer } from 'lucide-react';
 import { useVotacao } from '../contexts/VotacaoContext';
 
@@ -6,8 +6,24 @@ const ProgressBar = () => {
   const { progressoGeral, ministerioAtual, ministeriosDisponiveis, resultados, tempoEstimado, inicioComissao, comissaoEncerrada, encerrarComissao } = useVotacao();
   const [tempoDecorrido, setTempoDecorrido] = useState(0);
   const [duracaoFinal, setDuracaoFinal] = useState<number | null>(null);
+  const intervalRef = useRef<number | null>(null);
+  const inicioComissaoRef = useRef<number | null>(null);
 
   const todosFinalizados = progressoGeral === 100 && ministeriosDisponiveis.length > 0;
+
+  // Armazenar inicioComissao em ref para evitar mudanças
+  useEffect(() => {
+    if (inicioComissao && !inicioComissaoRef.current) {
+      inicioComissaoRef.current = inicioComissao;
+    }
+  }, [inicioComissao]);
+
+  // Função para calcular tempo atual - memoizada para evitar recriações
+  const calcularTempo = useCallback(() => {
+    if (!inicioComissaoRef.current) return 0;
+    const agora = Date.now();
+    return Math.floor((agora - inicioComissaoRef.current) / 1000);
+  }, []);
 
   // Encerrar comissão automaticamente quando todos os ministérios forem finalizados
   useEffect(() => {
@@ -16,34 +32,48 @@ const ProgressBar = () => {
     }
   }, [todosFinalizados, comissaoEncerrada, encerrarComissao]);
 
-  // Atualizar cronômetro a cada segundo (só se não estiver finalizado)
+  // Cronômetro principal - uma única função para gerenciar tudo
   useEffect(() => {
-    if (!inicioComissao) {
+    // Limpar interval anterior se existir
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    if (!inicioComissaoRef.current) {
       setTempoDecorrido(0);
       setDuracaoFinal(null);
       return;
     }
 
-    // Se todos finalizados OU comissão encerrada manualmente, parar cronômetro
+    // Usar a função memoizada
+
+    // Se finalizado, parar e definir duração final
     if (todosFinalizados || comissaoEncerrada) {
       if (duracaoFinal === null) {
-        const agora = Date.now();
-        const segundos = Math.floor((agora - inicioComissao) / 1000);
+        const segundos = calcularTempo();
         setDuracaoFinal(segundos);
         setTempoDecorrido(segundos);
       }
       return;
     }
 
-    // Continuar contando se ainda não finalizou
-    const interval = setInterval(() => {
-      const agora = Date.now();
-      const segundos = Math.floor((agora - inicioComissao) / 1000);
-      setTempoDecorrido(segundos);
+    // Definir tempo inicial imediatamente
+    setTempoDecorrido(calcularTempo());
+
+    // Criar interval para atualizar a cada segundo
+    intervalRef.current = setInterval(() => {
+      setTempoDecorrido(calcularTempo());
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [inicioComissao, todosFinalizados, comissaoEncerrada, duracaoFinal]);
+    // Cleanup function
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [todosFinalizados, comissaoEncerrada, duracaoFinal, calcularTempo]);
 
   // Formata tempo em segundos para formato legível
   const formatarTempo = (segundos: number) => {

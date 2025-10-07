@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Undo, Trash2, Play, Pause, Clock, RotateCcw } from 'lucide-react';
 
 interface Candidato {
@@ -23,16 +23,29 @@ const ControlesVotacao = ({
   const [pausado, setPausado] = useState(false);
   const [tempoSessao, setTempoSessao] = useState(0);
   const [showZerarMenu, setShowZerarMenu] = useState(false);
+  const intervalRef = useRef<number | null>(null);
 
   // Timer da sessão
   useEffect(() => {
+    // Limpar interval anterior se existir
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
     if (pausado) return;
 
-    const interval = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       setTempoSessao(prev => prev + 1);
     }, 1000);
 
-    return () => clearInterval(interval);
+    // Cleanup function para limpar o interval
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
   }, [pausado]);
 
   const formatarTempo = (segundos: number) => {

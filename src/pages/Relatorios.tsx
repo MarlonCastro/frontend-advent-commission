@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Trophy, Users, Download, FileText, Target, XCircle } from 'lucide-react';
+import { Trophy, Users, Download, FileText, Target, XCircle, ChevronDown, ChevronRight } from 'lucide-react';
 import { useVotacao } from '../contexts/VotacaoContext';
 import { gerarRelatorioCompleto, gerarRelatorioObjetivo } from '../utils/gerarPDF';
 
 const Relatorios = () => {
   const { resultados, nomeIgreja, ministeriosDisponiveis, getNumeroVagas } = useVotacao();
   const [showEscolhaPDF, setShowEscolhaPDF] = useState(false);
+  const [expandedResults, setExpandedResults] = useState<Set<number>>(new Set());
 
   const handleGerarCompleto = () => {
     gerarRelatorioCompleto(nomeIgreja, resultados);
@@ -17,25 +18,45 @@ const Relatorios = () => {
     setShowEscolhaPDF(false);
   };
 
+  const toggleResult = (index: number) => {
+    const newExpanded = new Set(expandedResults);
+    if (newExpanded.has(index)) {
+      newExpanded.delete(index);
+    } else {
+      newExpanded.add(index);
+    }
+    setExpandedResults(newExpanded);
+  };
+
+  const expandAll = () => {
+    const allExpanded = new Set(resultados.map((_, index) => index));
+    setExpandedResults(allExpanded);
+  };
+
+  const collapseAll = () => {
+    setExpandedResults(new Set());
+  };
+
   return (
     <div className="max-w-7xl mx-auto">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div className="flex items-center justify-between">
+      <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Trophy className="text-yellow-600" size={32} />
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800">Resultados da Votação</h1>
-              <p className="text-gray-600">{nomeIgreja}</p>
+            <Trophy className="text-yellow-600 flex-shrink-0" size={28} />
+            <div className="min-w-0 flex-1">
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 truncate">Resultados da Votação</h1>
+              <p className="text-sm md:text-base text-gray-600 truncate">{nomeIgreja}</p>
             </div>
           </div>
           <button
             onClick={() => setShowEscolhaPDF(true)}
             disabled={resultados.length === 0}
-            className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-lg transition shadow-lg hover:shadow-xl"
+            className="flex items-center justify-center gap-2 px-4 md:px-6 py-2 md:py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-lg transition shadow-lg hover:shadow-xl text-sm md:text-base whitespace-nowrap"
           >
-            <Download size={20} />
-            Gerar Relatório
+            <Download size={18} />
+            <span className="hidden sm:inline">Gerar Relatório</span>
+            <span className="sm:hidden">PDF</span>
           </button>
         </div>
       </div>
@@ -123,45 +144,94 @@ const Relatorios = () => {
             </div>
           </div>
 
+          {/* Controles de Expansão */}
+          {resultados.length > 0 && (
+            <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Users className="text-gray-600" size={20} />
+                  <span className="text-sm font-medium text-gray-700">
+                    {resultados.length} resultado{resultados.length !== 1 ? 's' : ''} encontrado{resultados.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={expandAll}
+                    className="flex items-center gap-2 px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 text-sm font-medium rounded-lg transition"
+                  >
+                    <ChevronDown size={16} />
+                    Expandir Todos
+                  </button>
+                  <button
+                    onClick={collapseAll}
+                    className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition"
+                  >
+                    <ChevronRight size={16} />
+                    Colapsar Todos
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Lista de Resultados */}
           {resultados.map((resultado, index) => {
             // Tratamento especial para ministérios sem candidatos
             if (resultado.semCandidatos) {
+              const isExpanded = expandedResults.has(index);
               return (
-                <div key={index} className="bg-orange-50 border-2 border-orange-300 rounded-xl p-6 shadow-md">
-                  <div className="flex items-start gap-4">
+                <div key={index} className="bg-orange-50 border-2 border-orange-300 rounded-lg shadow-md">
+                  {/* Header clicável */}
+                  <button
+                    onClick={() => toggleResult(index)}
+                    className="w-full p-4 flex items-center gap-3 hover:bg-orange-100 transition rounded-lg"
+                  >
                     <div className="flex-shrink-0">
-                      <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                        <XCircle className="text-orange-600" size={28} />
+                      <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                        <XCircle className="text-orange-600" size={20} />
                       </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-orange-900 mb-2">
+                    <div className="flex-1 text-left">
+                      <h3 className="text-lg font-bold text-orange-900 truncate">
                         {resultado.ministerioNome}
                       </h3>
-                      <p className="text-orange-700 mb-3">
-                        Este ministério foi encerrado <span className="font-semibold">sem candidatos indicados</span>.
+                      <p className="text-sm text-orange-700 truncate">
+                        Sem candidatos indicados
                       </p>
-                      <div className="bg-white border border-orange-200 rounded-lg p-3">
-                        <p className="text-sm text-orange-800">
-                          <span className="font-semibold">Observação:</span> A indicação pode ser reaberta através do seletor de ministérios na página principal.
+                    </div>
+                    <div className="flex-shrink-0">
+                      {isExpanded ? (
+                        <ChevronDown className="text-orange-600" size={20} />
+                      ) : (
+                        <ChevronRight className="text-orange-600" size={20} />
+                      )}
+                    </div>
+                  </button>
+
+                  {/* Conteúdo expandível */}
+                  {isExpanded && (
+                    <div className="px-4 pb-4 border-t border-orange-200">
+                      <div className="pt-4 space-y-3">
+                        <p className="text-sm text-orange-700">
+                          Este ministério foi encerrado <span className="font-semibold">sem candidatos indicados</span>.
                         </p>
+                        <div className="bg-white border border-orange-200 rounded-lg p-3">
+                          <p className="text-xs text-orange-800">
+                            <span className="font-semibold">Observação:</span> A indicação pode ser reaberta através do seletor de ministérios na página principal.
+                          </p>
+                        </div>
+                        <div className="text-xs text-orange-600">
+                          Encerrado em {new Date(resultado.timestamp).toLocaleDateString('pt-BR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Info Adicional */}
-                  <div className="mt-4 pt-4 border-t border-orange-200 text-sm text-orange-700">
-                    <span>
-                      Encerrado em {new Date(resultado.timestamp).toLocaleDateString('pt-BR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </span>
-                  </div>
+                  )}
                 </div>
               );
             }
@@ -169,98 +239,123 @@ const Relatorios = () => {
             const totalVotos = resultado.candidatos.reduce((acc, c) => acc + c.votos, 0);
             const candidatosOrdenados = [...resultado.candidatos].sort((a, b) => b.votos - a.votos);
 
+            const isExpanded = expandedResults.has(index);
             return (
-              <div key={index} className="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-md hover:shadow-lg transition">
-                {/* Header do Resultado */}
-                <div className="flex items-start justify-between mb-4 pb-4 border-b border-gray-200">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-gray-800 mb-1">
+              <div key={index} className="bg-white border-2 border-gray-200 rounded-lg shadow-md hover:shadow-lg transition">
+                {/* Header clicável */}
+                <button
+                  onClick={() => toggleResult(index)}
+                  className="w-full p-4 flex items-center gap-3 hover:bg-gray-50 transition rounded-lg"
+                >
+                  <div className="flex-shrink-0">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <Trophy className="text-blue-600" size={20} />
+                    </div>
+                  </div>
+                  <div className="flex-1 text-left">
+                    <h3 className="text-lg font-bold text-gray-800 truncate">
                       {resultado.ministerioNome}
                     </h3>
-                    <p className="text-sm text-gray-600">{resultado.cargoNome}</p>
+                    <p className="text-sm text-gray-600 truncate">{resultado.cargoNome}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm text-gray-600">Total de Votos</p>
-                    <p className="text-2xl font-bold text-blue-600">{totalVotos}</p>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <p className="text-xs text-gray-500">Total</p>
+                      <p className="text-lg font-bold text-blue-600">{totalVotos}</p>
+                    </div>
+                    <div className="flex-shrink-0">
+                      {isExpanded ? (
+                        <ChevronDown className="text-gray-600" size={20} />
+                      ) : (
+                        <ChevronRight className="text-gray-600" size={20} />
+                      )}
+                    </div>
                   </div>
-                </div>
+                </button>
 
-                {/* Vencedor */}
-                {resultado.vencedor && (
-                  <div className="bg-gradient-to-r from-yellow-50 to-amber-50 border-2 border-yellow-400 rounded-lg p-4 mb-4">
-                    <div className="flex items-center gap-3">
-                      <Trophy className="text-yellow-600" size={32} />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-yellow-800">Vencedor(a)</p>
-                        <p className="text-xl font-bold text-yellow-900">{resultado.vencedor}</p>
+                {/* Conteúdo expandível */}
+                {isExpanded && (
+                  <div className="px-4 pb-4 border-t border-gray-200">
+                    <div className="pt-4 space-y-4">
+                      {/* Eleito */}
+                      {resultado.vencedor && (
+                        <div className="bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-400 rounded-lg p-3">
+                          <div className="flex items-center gap-3">
+                            <Trophy className="text-yellow-600" size={24} />
+                            <div className="flex-1">
+                              <p className="text-xs font-medium text-yellow-800">Eleito(a)</p>
+                              <p className="text-lg font-bold text-yellow-900 truncate">{resultado.vencedor}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-xl font-bold text-yellow-600">
+                                {candidatosOrdenados[0].votos}
+                              </p>
+                              <p className="text-xs text-yellow-700">votos</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Lista de Candidatos */}
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-gray-700 text-xs mb-2">Todos os Candidatos:</h4>
+                        {candidatosOrdenados.map((candidato, idx) => {
+                          const porcentagem = totalVotos > 0
+                            ? ((candidato.votos / totalVotos) * 100).toFixed(1)
+                            : '0';
+                          const isVencedor = idx === 0;
+
+                          return (
+                            <div
+                              key={candidato.id}
+                              className={`flex items-center justify-between p-2 rounded-lg ${isVencedor
+                                ? 'bg-yellow-50 border-l-2 border-yellow-500'
+                                : 'bg-gray-50'
+                                }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${isVencedor
+                                  ? 'bg-yellow-500 text-white'
+                                  : 'bg-gray-300 text-gray-700'
+                                  }`}>
+                                  {idx + 1}
+                                </span>
+                                <span className={`font-medium text-sm truncate ${isVencedor ? 'text-yellow-900' : 'text-gray-800'}`}>
+                                  {candidato.nome}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="text-right">
+                                  <span className="font-bold text-sm text-gray-800">{candidato.votos}</span>
+                                  <span className="text-xs text-gray-600 ml-1">votos</span>
+                                </div>
+                                <span className="text-xs font-medium text-gray-600 min-w-[40px] text-right">
+                                  {porcentagem}%
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                      <div className="text-right">
-                        <p className="text-3xl font-bold text-yellow-600">
-                          {candidatosOrdenados[0].votos}
-                        </p>
-                        <p className="text-xs text-yellow-700">votos</p>
+
+                      {/* Info Adicional */}
+                      <div className="pt-3 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-gray-600">
+                        <span>
+                          Finalizado em {new Date(resultado.timestamp).toLocaleDateString('pt-BR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                        <span>
+                          Tempo: {Math.floor(resultado.tempoGasto / 60)} min {resultado.tempoGasto % 60} seg
+                        </span>
                       </div>
                     </div>
                   </div>
                 )}
-
-                {/* Lista de Candidatos */}
-                <div className="space-y-2">
-                  <h4 className="font-semibold text-gray-700 text-sm mb-3">Todos os Candidatos:</h4>
-                  {candidatosOrdenados.map((candidato, idx) => {
-                    const porcentagem = totalVotos > 0
-                      ? ((candidato.votos / totalVotos) * 100).toFixed(1)
-                      : '0';
-                    const isVencedor = idx === 0;
-
-                    return (
-                      <div
-                        key={candidato.id}
-                        className={`flex items-center justify-between p-3 rounded-lg ${isVencedor
-                          ? 'bg-yellow-50 border-l-4 border-yellow-500'
-                          : 'bg-gray-50'
-                          }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${isVencedor
-                            ? 'bg-yellow-500 text-white'
-                            : 'bg-gray-300 text-gray-700'
-                            }`}>
-                            {idx + 1}
-                          </span>
-                          <span className={`font-medium ${isVencedor ? 'text-yellow-900' : 'text-gray-800'}`}>
-                            {candidato.nome}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <div className="text-right">
-                            <span className="font-bold text-lg text-gray-800">{candidato.votos}</span>
-                            <span className="text-sm text-gray-600 ml-1">votos</span>
-                          </div>
-                          <span className="text-sm font-medium text-gray-600 min-w-[50px] text-right">
-                            {porcentagem}%
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Info Adicional */}
-                <div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between text-sm text-gray-600">
-                  <span>
-                    Finalizado em {new Date(resultado.timestamp).toLocaleDateString('pt-BR', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </span>
-                  <span>
-                    Tempo: {Math.floor(resultado.tempoGasto / 60)} min {resultado.tempoGasto % 60} seg
-                  </span>
-                </div>
               </div>
             );
           })}

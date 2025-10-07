@@ -42,6 +42,8 @@ const ComponenteExplicacao = ({
 
   // Timer para leitura
   useEffect(() => {
+    let timer: number | null = null;
+
     if (!isModalOpen || !autoAvancar) return;
 
     if (tempoRestante <= 0) {
@@ -49,11 +51,16 @@ const ComponenteExplicacao = ({
       return;
     }
 
-    const timer = setInterval(() => {
+    timer = setInterval(() => {
       setTempoRestante(prev => prev - 1);
     }, 1000);
 
-    return () => clearInterval(timer);
+    // Cleanup function para limpar o timer
+    return () => {
+      if (timer) {
+        clearInterval(timer);
+      }
+    };
   }, [isModalOpen, tempoRestante, autoAvancar]);
 
   // Resetar timer quando modal abre

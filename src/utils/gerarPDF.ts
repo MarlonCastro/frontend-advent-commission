@@ -29,7 +29,7 @@ export const gerarRelatorioCompleto = (
   // Título
   doc.setFontSize(20);
   doc.setFont('helvetica', 'bold');
-  doc.text('RELATÓRIO DE VOTAÇÃO - COMISSÃO DE NOMEAÇÕES', pageWidth / 2, yPosition, { align: 'center' });
+  doc.text('RELATORIO DE VOTACAO - COMISSAO DE NOMEACOES', pageWidth / 2, yPosition, { align: 'center' });
   
   yPosition += 10;
   doc.setFontSize(14);
@@ -50,7 +50,7 @@ export const gerarRelatorioCompleto = (
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
-  doc.text(`Total de Ministérios Votados: ${resultados.length}`, 14, yPosition);
+  doc.text(`Total de Ministerios Votados: ${resultados.length}`, 14, yPosition);
   yPosition += 20;
 
   // Para cada ministério
@@ -61,7 +61,7 @@ export const gerarRelatorioCompleto = (
       yPosition = 20;
     }
 
-    // Título do Ministério
+    // Titulo do Ministerio
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.text(`${index + 1}. ${resultado.ministerioNome}`, 14, yPosition);
@@ -72,12 +72,12 @@ export const gerarRelatorioCompleto = (
     doc.text(resultado.cargoNome, 14, yPosition);
     yPosition += 10;
 
-    // Vencedor em destaque
+    // Eleito em destaque
     if (resultado.vencedor) {
       doc.setFillColor(255, 237, 213); // Amarelo claro
       doc.rect(14, yPosition - 5, pageWidth - 28, 12, 'F');
       doc.setFont('helvetica', 'bold');
-      doc.text(`🏆 VENCEDOR(A): ${resultado.vencedor}`, 18, yPosition);
+      doc.text(`ELEITO(A): ${resultado.vencedor}`, 18, yPosition);
       yPosition += 15;
     }
 
@@ -88,7 +88,7 @@ export const gerarRelatorioCompleto = (
     const tableData = candidatosOrdenados.map((c, idx) => {
       const porcentagem = totalVotos > 0 ? ((c.votos / totalVotos) * 100).toFixed(1) : '0';
       return [
-        `${idx + 1}º`,
+        `${idx + 1}o`,
         c.nome,
         c.votos.toString(),
         `${porcentagem}%`
@@ -97,7 +97,7 @@ export const gerarRelatorioCompleto = (
 
     autoTable(doc, {
       startY: yPosition,
-      head: [['Posição', 'Candidato', 'Votos', '%']],
+      head: [['Posicao', 'Candidato', 'Votos', '%']],
       body: tableData,
       theme: 'grid',
       styles: { fontSize: 9 },
@@ -138,14 +138,14 @@ export const gerarRelatorioCompleto = (
     yPosition += 12;
   });
 
-  // Rodapé
+  // Rodape
   const totalPages = doc.getNumberOfPages();
   for (let i = 1; i <= totalPages; i++) {
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setTextColor(150);
     doc.text(
-      `Página ${i} de ${totalPages} | Sistema de Votação - Igreja Adventista`,
+      `Pagina ${i} de ${totalPages} | Sistema de Votacao - Igreja Adventista`,
       pageWidth / 2,
       doc.internal.pageSize.getHeight() - 10,
       { align: 'center' }
@@ -169,7 +169,7 @@ export const gerarRelatorioObjetivo = (
   // Título
   doc.setFontSize(20);
   doc.setFont('helvetica', 'bold');
-  doc.text('RELATÓRIO OBJETIVO - VENCEDORES', pageWidth / 2, yPosition, { align: 'center' });
+  doc.text('RELATÓRIO OBJETIVO - ELEITOS', pageWidth / 2, yPosition, { align: 'center' });
   
   yPosition += 10;
   doc.setFontSize(14);
@@ -188,21 +188,21 @@ export const gerarRelatorioObjetivo = (
     const numeroVagas = getNumeroVagas(resultado.ministerioId);
     
     // Pegar os N primeiros (baseado no número de vagas)
-    const vencedores = candidatosOrdenados.slice(0, numeroVagas);
-    const nomesVencedores = vencedores.map(v => v.nome).join('\n');
-    const votosVencedores = vencedores.map(v => `${v.votos} votos`).join('\n');
+    const eleitos = candidatosOrdenados.slice(0, numeroVagas);
+    const nomesEleitos = eleitos.map(e => e.nome).join('\n');
+    const votosEleitos = eleitos.map(e => `${e.votos} votos`).join('\n');
 
     return [
       resultado.ministerioNome,
       resultado.cargoNome,
-      nomesVencedores,
-      votosVencedores
+      nomesEleitos,
+      votosEleitos
     ];
   });
 
   autoTable(doc, {
     startY: yPosition,
-    head: [['Ministério', 'Cargo', 'Vencedor(es)', 'Votos']],
+    head: [['Ministerio', 'Cargo', 'Eleito(s)', 'Votos']],
     body: tableData,
     theme: 'striped',
     styles: { 
@@ -231,18 +231,18 @@ export const gerarRelatorioObjetivo = (
   yPosition += 7;
 
   doc.setFont('helvetica', 'normal');
-  doc.text(`Total de Ministérios: ${resultados.length}`, 14, yPosition);
+  doc.text(`Total de Ministerios: ${resultados.length}`, 14, yPosition);
   yPosition += 5;
   doc.text(`Total de Eleitos: ${resultados.reduce((acc, r) => acc + getNumeroVagas(r.ministerioId), 0)}`, 14, yPosition);
 
-  // Rodapé
+  // Rodape
   const totalPages = doc.getNumberOfPages();
   for (let i = 1; i <= totalPages; i++) {
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setTextColor(150);
     doc.text(
-      `Página ${i} de ${totalPages} | Sistema de Votação - Igreja Adventista`,
+      `Pagina ${i} de ${totalPages} | Sistema de Votacao - Igreja Adventista`,
       pageWidth / 2,
       doc.internal.pageSize.getHeight() - 10,
       { align: 'center' }

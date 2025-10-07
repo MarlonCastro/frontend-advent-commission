@@ -4,6 +4,7 @@ import { ministerios } from '../data/ministerios';
 import type { Ministerio } from '../data/ministerios';
 import useLocalStorage from '../hooks/useLocalStorage';
 import { enviarFinalizacaoComissao } from '../utils/googleForms';
+import { useToast } from './ToastContext';
 
 // Tipos
 interface Candidato {
@@ -104,6 +105,8 @@ interface VotacaoProviderProps {
 }
 
 export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
+  const { success } = useToast();
+
   // Estados persistidos no localStorage
   const [ministerioAtualId, setMinisterioAtualId] = useLocalStorage<string | null>('ministerioAtualId', null);
   const [etapaAtual, setEtapaAtual] = useLocalStorage<1 | 2 | 3>('etapaAtual', 1);
@@ -265,6 +268,13 @@ export const VotacaoProvider = ({ children }: VotacaoProviderProps) => {
     setMinisterioAtualId(null);
     setEtapaAtual(1);
     setCandidatos([]);
+
+    // Mostrar toast de sucesso
+    success(
+      'Votação Finalizada!',
+      `${ministerioAtual.nome} - ${vencedor?.nome} foi eleito(a)`,
+      5000
+    );
   };
 
   // Função: Encerrar Ministério Sem Candidatos

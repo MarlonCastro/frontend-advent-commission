@@ -281,14 +281,15 @@ const FormularioIndicacaoV2 = () => {
                           <p className="font-semibold text-purple-900 mb-2 text-sm">
                             Possíveis Interessados (Pré-cadastro):
                           </p>
-                          <div className="flex flex-wrap gap-2">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                             {interessadosDisponiveis.map((interessado, index) => (
                               <button
                                 key={index}
                                 onClick={() => handleSugestaoClick(interessado)}
-                                className="px-3 py-1 bg-white border border-purple-300 rounded-full text-sm text-purple-800 hover:bg-purple-100 transition"
+                                className="flex items-center justify-between p-2 bg-white border border-purple-300 rounded-lg text-sm text-purple-800 hover:bg-purple-100 transition"
                               >
-                                + {interessado}
+                                <span className="truncate flex-1 text-left">{interessado}</span>
+                                <UserPlus size={16} className="flex-shrink-0 ml-2 text-purple-600" />
                               </button>
                             ))}
                           </div>
@@ -335,7 +336,7 @@ const FormularioIndicacaoV2 = () => {
                   <span className="text-sm font-semibold text-gray-700 mb-2 block">
                     Nome do Candidato
                   </span>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <input
                       type="text"
                       value={nomeInput}
@@ -352,10 +353,10 @@ const FormularioIndicacaoV2 = () => {
                     <button
                       onClick={handleAdicionar}
                       disabled={!nomeInput.trim()}
-                      className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition shadow-md hover:shadow-lg flex items-center gap-2"
+                      className="px-4 sm:px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition shadow-md hover:shadow-lg flex items-center justify-center gap-2 min-w-[120px]"
                     >
                       <UserPlus size={20} />
-                      Adicionar
+                      <span className="hidden sm:inline">Adicionar</span>
                     </button>
                   </div>
                 </label>
@@ -387,14 +388,13 @@ const FormularioIndicacaoV2 = () => {
 
               {/* Alertas */}
               {temPoucosCandidatos && candidatos.length > 0 && (
-                <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg">
+                <div className="bg-yellow-50 border-l-4 border-yellow-500 p-3 rounded-r-lg">
                   <div className="flex items-start">
-                    <AlertCircle className="text-yellow-600 mr-3 flex-shrink-0 mt-0.5" size={20} />
-                    <div>
+                    <AlertCircle className="text-yellow-600 mr-2 flex-shrink-0 mt-0.5" size={18} />
+                    <div className="min-w-0 flex-1">
                       <p className="font-semibold text-yellow-900 text-sm mb-1">Atenção!</p>
-                      <p className="text-sm text-yellow-800">
-                        Você adicionou menos candidatos ({candidatos.length}) do que o número de vagas ({numeroVagas}).
-                        Considere adicionar mais candidatos.
+                      <p className="text-xs text-yellow-800 break-words">
+                        Menos candidatos ({candidatos.length}) que vagas ({numeroVagas}). Considere adicionar mais.
                       </p>
                     </div>
                   </div>
@@ -402,13 +402,13 @@ const FormularioIndicacaoV2 = () => {
               )}
 
               {candidatos.length >= numeroVagas && (
-                <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
+                <div className="bg-green-50 border-l-4 border-green-500 p-3 rounded-r-lg">
                   <div className="flex items-start">
-                    <CheckCircle className="text-green-600 mr-3 flex-shrink-0 mt-0.5" size={20} />
-                    <div>
+                    <CheckCircle className="text-green-600 mr-2 flex-shrink-0 mt-0.5" size={18} />
+                    <div className="min-w-0 flex-1">
                       <p className="font-semibold text-green-900 text-sm">Pronto para votação!</p>
-                      <p className="text-sm text-green-800">
-                        Você adicionou candidatos suficientes.
+                      <p className="text-xs text-green-800">
+                        Candidatos suficientes adicionados.
                       </p>
                     </div>
                   </div>

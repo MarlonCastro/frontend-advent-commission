@@ -30,15 +30,15 @@ const AppLayout = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Mobile Header */}
-        <header className="md:hidden bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+        <header className="md:hidden bg-white border-b border-gray-200 p-3 flex items-center justify-between sticky top-0 z-40">
           <button
             onClick={toggleSidebar}
-            className="p-2 hover:bg-gray-100 rounded-lg transition"
+            className="p-2 hover:bg-gray-100 rounded-lg transition flex-shrink-0"
           >
-            <Menu size={24} className="text-gray-700" />
+            <Menu size={20} className="text-gray-700" />
           </button>
-          <h1 className="text-lg font-bold text-gray-800">Sistema de Votação</h1>
-          <div className="w-10" /> {/* Spacer para centralizar título */}
+          <h1 className="text-base font-bold text-gray-800 truncate px-2">Sistema de Votação</h1>
+          <div className="w-10 flex-shrink-0" /> {/* Spacer para centralizar título */}
         </header>
 
         {/* Content Area */}
